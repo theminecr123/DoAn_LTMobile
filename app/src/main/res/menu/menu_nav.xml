@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<item android:id="@+id/Home"
+    android:title="Home"
+    android:icon="@drawable/ic_home_black_24dp">
+</item>
+    <item android:id="@+id/KhoaHoc"
+        android:title="Khóa Học"
+        android:icon="@drawable/ic_baseline_code_24">
+    </item>
+    <item android:id="@+id/Song"
+        android:title="Song"
+        android:icon="@drawable/baseline_queue_music_24">
+    </item>
+</menu>
