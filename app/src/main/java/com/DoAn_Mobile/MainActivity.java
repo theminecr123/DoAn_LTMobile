@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         layout = findViewById(R.id.fm);
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Nhóm 03_Bài 4_2");
+        getSupportActionBar().setTitle("Social Media");
 
         VpagerAdapter adapter = new VpagerAdapter(getSupportFragmentManager());
         pager2.setAdapter(adapter);
@@ -47,19 +47,12 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()){
                     case R.id.Home:
                         pager2.setCurrentItem(0);
-                       Toast toast = Toast.makeText(MainActivity.this,"Trang Chủ",Toast.LENGTH_LONG);
-                       toast.setGravity(Gravity.CENTER,0,0);
-                       toast.show();
                         break;
                     case R.id.KhoaHoc:
                         pager2.setCurrentItem(1);
-                        Toast toast2 = Toast.makeText(MainActivity.this,"Chọn Khóa Học Bạn Muốn Học",Toast.LENGTH_SHORT);
-                        toast2.setGravity(Gravity.CENTER | Gravity.LEFT, 0,0);
-                        toast2.show();
                         break;
                     case R.id.Song:
                         pager2.setCurrentItem(2);
-                        Toast.makeText(MainActivity.this, "Chọn Bài Hát Bạn Muốn Hát", Toast.LENGTH_SHORT).show();
                         break;
                 }
                 return true;
