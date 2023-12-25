@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import com.DoAn_Mobile.MainActivity;
 import com.DoAn_Mobile.R;
@@ -37,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        Button button = findViewById(R.id.btnButton);
+        ImageView button = findViewById(R.id.btnButton);
         button.setOnClickListener(v -> {
             signIn();
         });
