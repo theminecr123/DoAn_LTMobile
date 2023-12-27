@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DoAn_Mobile">
         <activity
+            android:name=".UI.SplashActivity"
+            android:exported="false" />
+        <activity
             android:name=".Authentication.SignupActivity"
             android:exported="false" />
         <activity
