@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.DoAn_Mobile.MainActivity;
 import com.DoAn_Mobile.R;
+import com.DoAn_Mobile.UI.SplashActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -147,7 +148,8 @@ public class LoginActivity extends AppCompatActivity {
 
         if(user!=null){
             createSession();
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            Intent intent = new Intent(LoginActivity.this, SplashActivity.class);
+            intent.putExtra("source_activity", "toMain");
             startActivity(intent);
         }
     }
