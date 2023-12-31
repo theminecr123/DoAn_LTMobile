@@ -14,23 +14,23 @@ import com.DoAn_Mobile.R;
 
 import java.util.ArrayList;
 
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder>  {
+public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder>  {
 
     ArrayList<Model3> songList = new ArrayList<>();
 
-    public SongAdapter(ArrayList<Model3> songList) {
+    public FindAdapter(ArrayList<Model3> songList) {
         this.songList = songList;
     }
 
     @NonNull
     @Override
-    public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_layout, parent,false);
-        return new SongViewHolder(view);
+    public FindViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.find_layout, parent,false);
+        return new FindViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FindViewHolder holder, int position) {
 
         holder.image.setImageResource(songList.get(position).image);
         holder.textView1.setText(songList.get(position).content);
@@ -42,12 +42,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return songList.size();
     }
 
-    public class SongViewHolder extends RecyclerView.ViewHolder{
+    public class FindViewHolder extends RecyclerView.ViewHolder{
 
         ImageView image;
         TextView textView1,textview2;
 
-        public SongViewHolder(@NonNull View itemView) {
+        public FindViewHolder(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.circularImage);
             textView1 = itemView.findViewById(R.id.textView1);

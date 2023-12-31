@@ -6,8 +6,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.DoAn_Mobile.Fragments.HomeFragment;
-import com.DoAn_Mobile.Fragments.SongFragment;
-import com.DoAn_Mobile.Fragments.KhoahocFragment;
+import com.DoAn_Mobile.Fragments.ProfileFragment;
+import com.DoAn_Mobile.Fragments.FindFragment;
+import com.DoAn_Mobile.Fragments.WatchFragment;
 
 public class VpagerAdapter extends FragmentStatePagerAdapter{
 
@@ -23,15 +24,17 @@ public class VpagerAdapter extends FragmentStatePagerAdapter{
             case 0:
                 return new HomeFragment();
             case 1:
-                return new KhoahocFragment();
+                return new WatchFragment();
             case 2:
-                return new SongFragment();
+                return new FindFragment();
+            case 3:
+                return new ProfileFragment();
         }
         return null;
     }
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 }

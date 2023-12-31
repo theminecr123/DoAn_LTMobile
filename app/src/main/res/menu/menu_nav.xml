@@ -4,12 +4,16 @@
     android:title="Home"
     android:icon="@drawable/ic_home_black_24dp">
 </item>
-    <item android:id="@+id/KhoaHoc"
-        android:title="Khóa Học"
-        android:icon="@drawable/ic_baseline_code_24">
+    <item android:id="@+id/Watch"
+        android:title="Watch"
+        android:icon="@drawable/img_watch">
     </item>
-    <item android:id="@+id/Song"
-        android:title="Song"
-        android:icon="@drawable/baseline_queue_music_24">
+    <item android:id="@+id/Find"
+        android:title="Find"
+        android:icon="@drawable/img_find">
+    </item>
+    <item android:id="@+id/Profile"
+        android:title="Profile"
+        android:icon="@drawable/img_profile">
     </item>
 </menu>

@@ -59,11 +59,15 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.Home:
                         pager2.setCurrentItem(0);
                         break;
-                    case R.id.KhoaHoc:
+                    case R.id.Watch:
                         pager2.setCurrentItem(1);
                         break;
-                    case R.id.Song:
+                    case R.id.Find:
                         pager2.setCurrentItem(2);
+                        break;
+
+                    case R.id.Profile:
+                        pager2.setCurrentItem(3);
                         break;
                 }
                 return true;
@@ -84,10 +88,13 @@ public class MainActivity extends AppCompatActivity {
                     navigationView.getMenu().findItem(R.id.Home).setChecked(true);
                         break;
                     case 1:
-                        navigationView.getMenu().findItem(R.id.KhoaHoc).setChecked(true);// setchecked will highlight the menu
+                        navigationView.getMenu().findItem(R.id.Watch).setChecked(true);
                         break;
                     case 2:
-                        navigationView.getMenu().findItem(R.id.Song).setChecked(true);
+                        navigationView.getMenu().findItem(R.id.Find).setChecked(true);
+                        break;
+                     case 3:
+                        navigationView.getMenu().findItem(R.id.Profile).setChecked(true);
                         break;
                 }
             }
