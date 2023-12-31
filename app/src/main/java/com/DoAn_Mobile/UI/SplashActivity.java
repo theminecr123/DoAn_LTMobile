@@ -10,6 +10,7 @@ import com.DoAn_Mobile.Authentication.LoginActivity;
 import com.DoAn_Mobile.Authentication.WelcomeActivity;
 import com.DoAn_Mobile.MainActivity;
 import com.DoAn_Mobile.R;
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,7 +27,8 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         mAuth = FirebaseAuth.getInstance();
-
+        LottieAnimationView animationView = findViewById(R.id.lottieAnimationView);
+        animationView.playAnimation();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference usersRef = database.getReference("users");
 
