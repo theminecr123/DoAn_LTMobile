@@ -1,52 +1,51 @@
 package com.DoAn_Mobile.Fragments;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.Manifest;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 
+import com.DoAn_Mobile.Adapters.FindAdapter;
+import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FindFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class FindFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    RecyclerView recyclerView;
-
+    ViewPager2 viewPager;
+    double currentUserLatitude, currentUserLongitude;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     public FindFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SalaryFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static FindFragment newInstance(String param1, String param2) {
         FindFragment fragment = new FindFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,20 +54,84 @@ public class FindFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_find, container, false);
-        recyclerView = view.findViewById(R.id.rv);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_find, container, false);
+        viewPager = view.findViewById(R.id.pagerFind);
+        viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
 
-
+        setupLocationManagerAndListener();
+        requestLocationPermission();
 
         return view;
     }
+    private void setupLocationManagerAndListener() {
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                currentUserLatitude = location.getLatitude();
+                currentUserLongitude = location.getLongitude();
+                updateLocationInFirebase(currentUserLatitude, currentUserLongitude);
+                fetchUsersAndUpdateViewPager();
+            }
+
+            // ... (xử lý các phương thức khác của LocationListener)
+        };
+    }
+    private void requestLocationPermission() {
+        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation();
+            } else {
+                // Quyền bị từ chối, xử lý tình huống này
+            }
+        }
+    }
+
+    private void getCurrentLocation() {
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        } catch (SecurityException e) {
+            // Xử lý trường hợp không có quyền truy cập vị trí
+        }
+    }
+
+    private void fetchUsersAndUpdateViewPager() {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<User> userList = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    User user = snapshot.getValue(User.class);
+                    userList.add(user);
+                }
+
+                FindAdapter adapter = new FindAdapter(userList, currentUserLatitude, currentUserLongitude);
+                viewPager.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Xử lý lỗi
+            }
+        });
+    }
+
+    private void updateLocationInFirebase(double latitude, double longitude) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        com.DoAn_Mobile.Authentication.Location location = new com.DoAn_Mobile.Authentication.Location(latitude, longitude);
+        databaseReference.child("location").setValue(location);
+    }
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
 }

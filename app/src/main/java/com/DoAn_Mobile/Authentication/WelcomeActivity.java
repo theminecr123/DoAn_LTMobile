@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 
@@ -14,6 +15,7 @@ import com.DoAn_Mobile.MainActivity;
 import com.DoAn_Mobile.R;
 import com.DoAn_Mobile.UI.SplashActivity;
 import com.DoAn_Mobile.databinding.ActivityWelcomeBinding;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -44,11 +46,33 @@ public class WelcomeActivity extends AppCompatActivity {
         setContentView(view);
         mAuth = FirebaseAuth.getInstance();
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference("users").child(mAuth.getUid()); // Thay userId bằng ID thực của người dùng
 
+        userRef.child("imgProfile").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String imageUriString = dataSnapshot.getValue(String.class);
+                    Glide.with(WelcomeActivity.this)
+                            .load(imageUriString)
+                            .placeholder(R.drawable.placeholder) // Ảnh placeholder
+                            .error(R.drawable.error) // Ảnh hiển thị khi có lỗi
+                            .fitCenter()
+                            .into(binding.imgAvatar);   }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
+                // Xử lý lỗi
+            }
+        });
         binding.btnChangeAVT.setOnClickListener(v -> openFileChooser());
 
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        //FirebaseDatabase database = FirebaseDatabase.getInstance();
         String uid = mAuth.getCurrentUser().getUid();
         binding.btnNext.setOnClickListener(v -> {
             
@@ -137,10 +161,11 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void saveImageUrlToDatabase(String imageUrl) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("users");
         Map<String, Object> updates = new HashMap<>();
-        updates.put("profileImageUrl", imageUrl);
-        databaseRef.updateChildren(updates)
+        updates.put("imgProfile", imageUrl);
+
+        databaseRef.child(uid).updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
                     // Xử lý khi cập nhật thành công
                 })

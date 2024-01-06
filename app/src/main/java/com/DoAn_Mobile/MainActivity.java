@@ -1,6 +1,7 @@
 package com.DoAn_Mobile;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -12,7 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.DoAn_Mobile.Authentication.LoginActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -21,10 +24,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
-    Toolbar toolbar;
     BottomNavigationView navigationView;
-    ViewPager pager2;
-    FrameLayout layout;
+    ViewPager2 pager2;
     Button button;
     private FirebaseAuth mAuth;
 
@@ -37,71 +38,65 @@ public class MainActivity extends AppCompatActivity {
         button = findViewById(R.id.button);
         button.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
 
         });
 
-        toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.BottomNav);
         pager2 = findViewById(R.id.pager2);
-        layout = findViewById(R.id.fm);
 
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Social Media");
-
-        VpagerAdapter adapter = new VpagerAdapter(getSupportFragmentManager());
+        VpagerAdapter adapter = new VpagerAdapter(this);
         pager2.setAdapter(adapter);
 
-        navigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.Home:
-                        pager2.setCurrentItem(0);
-                        break;
-                    case R.id.Watch:
-                        pager2.setCurrentItem(1);
-                        break;
-                    case R.id.Find:
-                        pager2.setCurrentItem(2);
-                        break;
+        navigationView.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.Home:
+                    pager2.setCurrentItem(0, true);
+                    return true;
+                case R.id.Watch:
+                    pager2.setCurrentItem(1, true);
+                    return true;
+                case R.id.Find:
+                    pager2.setCurrentItem(2, true);
+                    return true;
+                case R.id.Profile:
+                    pager2.setCurrentItem(3, true);
+                    return true;
+            }
+            return false;
+        });
 
-                    case R.id.Profile:
-                        pager2.setCurrentItem(3);
-                        break;
+        pager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    navigationView.setSelectedItemId(R.id.Home);
+                } else if (position == 1) {
+                    navigationView.setSelectedItemId(R.id.Watch);
+                } else if (position == 2) {
+                    navigationView.setSelectedItemId(R.id.Find);
+                } else if (position == 3) {
+                    navigationView.setSelectedItemId(R.id.Profile);
                 }
-                return true;
             }
         });
 
 
-        pager2.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-            }
-
+        pager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                switch (position) {
-                    case 0:
-                    navigationView.getMenu().findItem(R.id.Home).setChecked(true);
-                        break;
-                    case 1:
-                        navigationView.getMenu().findItem(R.id.Watch).setChecked(true);
-                        break;
-                    case 2:
-                        navigationView.getMenu().findItem(R.id.Find).setChecked(true);
-                        break;
-                     case 3:
-                        navigationView.getMenu().findItem(R.id.Profile).setChecked(true);
-                        break;
+                if (position == 0) {
+                    navigationView.setSelectedItemId(R.id.Home);
+                } else if (position == 1) {
+                    navigationView.setSelectedItemId(R.id.Watch);
+                } else if (position == 2) {
+                    navigationView.setSelectedItemId(R.id.Find);
+                } else if (position == 3) {
+                    navigationView.setSelectedItemId(R.id.Profile);
                 }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
             }
         });
     }

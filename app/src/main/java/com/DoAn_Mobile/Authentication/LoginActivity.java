@@ -114,8 +114,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
-
         btnSignup = findViewById(R.id.btnSignup);
 
         btnSignup.setOnClickListener(v -> {
@@ -201,9 +199,6 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
                             checkIfEmailExists(user.getEmail());
-
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
                         } else {
                             updateUI(null);
                         }
@@ -222,10 +217,6 @@ public class LoginActivity extends AppCompatActivity {
                         mAuth.signOut();
                     } else {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        databaseReferences = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-                        User users = new User(user.getUid(), user.getEmail(), "", "", "Male",false);
-                        databaseReferences.setValue(users);
-                        checkIfEmailExists(user.getEmail());
                         updateUI(user);
                     }
                 } else {
@@ -255,7 +246,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 String username = it.child("name").getValue().toString();
                                                 String email = it.child("email").getValue().toString();
                                                 String gender = it.child("gender").getValue().toString();
-                                                boolean active = Boolean.parseBoolean(it.child("active").getValue().toString());
+                                                boolean active = Boolean.parseBoolean((String) it.child("active").getValue());
                                                 String imgProfile = it.child("imgProfile").getValue().toString();
                                                 Map<String, Object> userUpdate = new HashMap<>();
                                                 userUpdate.put("id", currentUser.getUid());
@@ -266,6 +257,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 userUpdate.put("name", username);
                                                 databaseReferences.child(currentUser.getUid()).updateChildren(userUpdate);
                                                 // Now that the user data is updated, start the activity
+                                                updateUI(currentUser);
                                                 finish();
                                             }
                                         }
@@ -281,7 +273,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     if (task.isSuccessful()) {
                                                         Toast.makeText(LoginActivity.this, "Welcome, " + currentUser.getDisplayName(), Toast.LENGTH_SHORT).show();
                                                         // Now that the user data is created, start the activity
-                                                        updateUI(FirebaseAuth.getInstance().getCurrentUser());
+                                                        updateUI(currentUser);
                                                         finish();
                                                     } else {
                                                         updateUI(null);

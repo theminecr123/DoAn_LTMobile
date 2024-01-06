@@ -7,6 +7,8 @@ public class User {
     String imgProfile;
     String gender;
     Boolean isActive;
+    String description;
+    private Location location;
 
     public User(String id, String email, String name, String imgProfile, String gender, Boolean isActive) {
         this.id = id;
@@ -17,11 +19,17 @@ public class User {
         this.isActive = isActive;
     }
 
-    public User(String uid, String email) {
-        this.id = uid;
-        this.email = email;
+
+    public User() {
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
     public String getId() {
         return id;
     }
@@ -68,5 +76,13 @@ public class User {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

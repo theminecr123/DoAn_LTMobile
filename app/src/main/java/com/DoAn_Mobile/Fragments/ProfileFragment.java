@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.DoAn_Mobile.Adapters.HomeAdapter;
 import com.DoAn_Mobile.Adapters.Model;
-import com.DoAn_Mobile.Adapters.ProfileAdapter;
+//import com.DoAn_Mobile.Adapters.ProfileAdapter;
 import com.DoAn_Mobile.R;
 
 import java.util.ArrayList;
