@@ -34,10 +34,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mAuth = FirebaseAuth.getInstance();
 
         button = findViewById(R.id.button);
         button.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
+            mAuth.signOut();
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -66,21 +67,6 @@ public class MainActivity extends AppCompatActivity {
                     return true;
             }
             return false;
-        });
-
-        pager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                if (position == 0) {
-                    navigationView.setSelectedItemId(R.id.Home);
-                } else if (position == 1) {
-                    navigationView.setSelectedItemId(R.id.Watch);
-                } else if (position == 2) {
-                    navigationView.setSelectedItemId(R.id.Find);
-                } else if (position == 3) {
-                    navigationView.setSelectedItemId(R.id.Profile);
-                }
-            }
         });
 
 

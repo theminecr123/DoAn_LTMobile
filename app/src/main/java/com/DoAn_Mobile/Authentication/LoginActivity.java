@@ -199,8 +199,12 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
                             checkIfEmailExists(user.getEmail());
+                            updateUI(user);
+                            finish();
+
                         } else {
                             updateUI(null);
+                            Toast.makeText(LoginActivity.this, "Authentication failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -246,7 +250,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 String username = it.child("name").getValue().toString();
                                                 String email = it.child("email").getValue().toString();
                                                 String gender = it.child("gender").getValue().toString();
-                                                boolean active = Boolean.parseBoolean((String) it.child("active").getValue());
+                                                boolean active = Boolean.parseBoolean(it.child("active").getValue().toString());
                                                 String imgProfile = it.child("imgProfile").getValue().toString();
                                                 Map<String, Object> userUpdate = new HashMap<>();
                                                 userUpdate.put("id", currentUser.getUid());
@@ -257,7 +261,6 @@ public class LoginActivity extends AppCompatActivity {
                                                 userUpdate.put("name", username);
                                                 databaseReferences.child(currentUser.getUid()).updateChildren(userUpdate);
                                                 // Now that the user data is updated, start the activity
-                                                updateUI(currentUser);
                                                 finish();
                                             }
                                         }

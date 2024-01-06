@@ -29,7 +29,9 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
         this.currentUserLatitude = currentUserLatitude;
         this.currentUserLongitude = currentUserLongitude;
     }
-
+    public List<User> getUserList() {
+        return userList;
+    }
     @NonNull
     @Override
     public FindViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
