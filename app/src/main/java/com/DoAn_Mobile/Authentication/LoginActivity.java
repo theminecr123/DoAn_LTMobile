@@ -221,6 +221,7 @@ public class LoginActivity extends AppCompatActivity {
                         mAuth.signOut();
                     } else {
                         FirebaseUser user = mAuth.getCurrentUser();
+                        checkIfEmailExists(mAuth.getCurrentUser().getEmail());
                         updateUI(user);
                     }
                 } else {

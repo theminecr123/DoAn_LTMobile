@@ -47,6 +47,7 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
     private int currentPageStart = 0;
     private FirebaseAuth mAuth;
 
+    private FindAdapter adapter;
 
     public FindFragment() {
         // Required empty public constructor
@@ -74,7 +75,7 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
         viewPager = view.findViewById(R.id.pagerFind);
         viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
         mAuth = FirebaseAuth.getInstance();
-        FindAdapter adapter = new FindAdapter(new ArrayList<>(), currentUserLatitude, currentUserLongitude, this);
+        adapter = new FindAdapter(new ArrayList<>(), currentUserLatitude, currentUserLongitude, this);
         viewPager.setAdapter(adapter);
         setupLocationManagerAndListener();
         requestLocationPermission();
@@ -109,7 +110,7 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             getCurrentLocation();
         } else {
-            // Xử lý trường hợp quyền bị từ chối
+            Toast.makeText(getActivity(), "Quyền truy cập vị trí cần thiết", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -149,7 +150,6 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
                 });
     }
     private void updateAdapterData(List<User> newUserList) {
-        FindAdapter adapter = (FindAdapter) viewPager.getAdapter();
         if (adapter != null) {
             List<User> existingUsers = adapter.getUserList();
 
@@ -207,11 +207,58 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
 
     @Override
     public void onLikeClicked(User user) {
-        // Xử lý khi người dùng nhấn 'like'
+        FindAdapter adapter = (FindAdapter) viewPager.getAdapter();
+        if (adapter != null) {
+            int currentItem = viewPager.getCurrentItem();
+            if (currentItem < adapter.getItemCount() - 1) {
+                viewPager.setCurrentItem(currentItem + 1, true);
+            }
+        } else {
+            Log.e("FindFragment", "Adapter is null");
+        }
+        sendLike(mAuth.getUid(),user.getId());
     }
 
     @Override
     public void onDislikeClicked(User user) {
-        // Xử lý khi người dùng nhấn 'dislike'
+        FindAdapter adapter = (FindAdapter) viewPager.getAdapter();
+        if (adapter != null) {
+            int currentItem = viewPager.getCurrentItem();
+            if (currentItem < adapter.getItemCount() - 1) {
+                viewPager.setCurrentItem(currentItem + 1, true);
+            }
+        } else {
+            Log.e("FindFragment", "Adapter is null");
+        }
     }
+
+    private void sendLike(String currentUserId, String likedUserId) {
+        DatabaseReference likesRef = FirebaseDatabase.getInstance().getReference("Likes");
+        likesRef.child(currentUserId).child(likedUserId).setValue(true);
+
+        checkForMatch(currentUserId, likedUserId);
+    }
+    private void checkForMatch(String currentUserId, String likedUserId) {
+        DatabaseReference likesRef = FirebaseDatabase.getInstance().getReference("Likes");
+        likesRef.child(likedUserId).child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Có 'match'
+                    DatabaseReference matchesRef = FirebaseDatabase.getInstance().getReference("Matches");
+                    matchesRef.child(currentUserId).child(likedUserId).setValue(true);
+                    matchesRef.child(likedUserId).child(currentUserId).setValue(true);
+
+                    // Mở khả năng chat
+                    //openChat(currentUserId, likedUserId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Xử lý lỗi
+            }
+        });
+    }
+
 }

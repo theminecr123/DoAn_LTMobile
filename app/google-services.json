@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "417529420498-ntf801dqubes3n1fedcomj6ptntn8s8o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.DoAn_Mobile",
+            "certificate_hash": "1dffebed4ecadb99ebc1f313852b89a4f0f38c01"
+          }
+        },
+        {
           "client_id": "417529420498-pgp3advnclbq70ulhbdvbsgqk02fm703.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
