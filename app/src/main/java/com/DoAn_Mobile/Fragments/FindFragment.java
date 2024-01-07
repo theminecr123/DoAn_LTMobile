@@ -9,9 +9,11 @@ import android.os.Bundle;
 import android.Manifest;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class FindFragment extends Fragment {
+public class FindFragment extends Fragment implements FindAdapter.UserInteractionListener {
 
 
     ViewPager2 viewPager;
@@ -72,19 +74,21 @@ public class FindFragment extends Fragment {
         viewPager = view.findViewById(R.id.pagerFind);
         viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
         mAuth = FirebaseAuth.getInstance();
-
+        FindAdapter adapter = new FindAdapter(new ArrayList<>(), currentUserLatitude, currentUserLongitude, this);
+        viewPager.setAdapter(adapter);
         setupLocationManagerAndListener();
+        requestLocationPermission();
 
         return view;
     }
     private void setupLocationManagerAndListener() {
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        requestLocationPermission();
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 currentUserLatitude = location.getLatitude();
                 currentUserLongitude = location.getLongitude();
+                Log.d("LocationUpdate", "Location updated: " + location.getLatitude() + ", " + location.getLongitude());
                 updateLocationInFirebase(currentUserLatitude, currentUserLongitude);
                 fetchUsersAndUpdateViewPager();
             }
@@ -93,16 +97,19 @@ public class FindFragment extends Fragment {
         };
     }
     private void requestLocationPermission() {
-        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            getCurrentLocation();
+        }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation();
-            } else {
-                // Quyền bị từ chối, xử lý tình huống này
-            }
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            getCurrentLocation();
+        } else {
+            // Xử lý trường hợp quyền bị từ chối
         }
     }
 
@@ -110,7 +117,7 @@ public class FindFragment extends Fragment {
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListener);
         } catch (SecurityException e) {
-            // Xử lý trường hợp không có quyền truy cập vị trí
+            Log.e("LocationError", "SecurityException: " + e.getMessage());
         }
     }
 
@@ -148,24 +155,32 @@ public class FindFragment extends Fragment {
 
             for (User user : newUserList) {
                 if (user.getLocation() != null && !Objects.equals(user.getId(), mAuth.getUid())) {
-                    existingUsers.add(user); // Chỉ thêm người dùng có trường location
+                    float distance = calculateDistance(currentUserLatitude, currentUserLongitude,
+                            user.getLocation().getLatitude(), user.getLocation().getLongitude());
+                    if (distance > 1000) {
+                        existingUsers.add(user); // Chỉ thêm người dùng có khoảng cách > 1000 mét
+                    }
                 }
             }
 
             adapter.notifyDataSetChanged();
         } else {
-            // Lọc và tạo danh sách chỉ bao gồm những người dùng có trường location
-            List<User> usersWithLocation = new ArrayList<>();
+            List<User> usersWithLocationAndDistance = new ArrayList<>();
             for (User user : newUserList) {
                 if (user.getLocation() != null && !Objects.equals(user.getId(), mAuth.getUid())) {
-                    usersWithLocation.add(user);
+                    float distance = calculateDistance(currentUserLatitude, currentUserLongitude,
+                            user.getLocation().getLatitude(), user.getLocation().getLongitude());
+                    if (distance > 1000) {
+                        usersWithLocationAndDistance.add(user);
+                    }
                 }
             }
 
-            adapter = new FindAdapter(usersWithLocation, currentUserLatitude, currentUserLongitude);
+            adapter = new FindAdapter(usersWithLocationAndDistance, currentUserLatitude, currentUserLongitude,this);
             viewPager.setAdapter(adapter);
         }
     }
+
 
 
 
@@ -176,5 +191,27 @@ public class FindFragment extends Fragment {
         databaseReference.child("location").setValue(location);
     }
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private float calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        Location location1 = new Location("");
+        location1.setLatitude(lat1);
+        location1.setLongitude(lon1);
 
+        Location location2 = new Location("");
+        location2.setLatitude(lat2);
+        location2.setLongitude(lon2);
+
+        float distanceInMeters = location1.distanceTo(location2);
+
+        return distanceInMeters;
+    }
+
+    @Override
+    public void onLikeClicked(User user) {
+        // Xử lý khi người dùng nhấn 'like'
+    }
+
+    @Override
+    public void onDislikeClicked(User user) {
+        // Xử lý khi người dùng nhấn 'dislike'
+    }
 }

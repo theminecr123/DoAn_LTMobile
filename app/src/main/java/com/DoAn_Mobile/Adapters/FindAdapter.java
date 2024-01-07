@@ -19,15 +19,22 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder>  {
+public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder> {
 
     List<User> userList;
     private double currentUserLatitude;
     private double currentUserLongitude;
-    public FindAdapter(List<User> userList, double currentUserLatitude, double currentUserLongitude) {
+    private UserInteractionListener listener;
+    public interface UserInteractionListener {
+        void onLikeClicked(User user);
+        void onDislikeClicked(User user);
+    }
+
+    public FindAdapter(List<User> userList, double currentUserLatitude, double currentUserLongitude, UserInteractionListener listener) {
         this.userList = userList;
         this.currentUserLatitude = currentUserLatitude;
         this.currentUserLongitude = currentUserLongitude;
+        this.listener = listener;
     }
     public List<User> getUserList() {
         return userList;
@@ -43,10 +50,6 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
     @Override
     public void onBindViewHolder(@NonNull FindViewHolder holder, int position) {
         User user = userList.get(position);
-
-        // Hiển thị dữ liệu cho mỗi người dùng
-        holder.tvUsername.setText(user.getName());
-        holder.tvDescription.setText(user.getDescription());
         // Tính toán và hiển thị khoảng cách
         if (user.getLocation() != null) {
             float distance = calculateDistance(
@@ -55,18 +58,18 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
                     user.getLocation().getLatitude(),
                     user.getLocation().getLongitude()
             );
-            holder.tvLocation.setText(distance + " km");
-        }
-        // Sử dụng Glide để hiển thị ảnh
-        Glide.with(holder.image)
-                .load(user.getImgProfile())
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.error)
-                .fitCenter()
-                .into(holder.image);
+                holder.tvUsername.setText(user.getName());
+                holder.tvDescription.setText(user.getDescription());
+                holder.tvLocation.setText(distance + " km");
+                Glide.with(holder.image)
+                        .load(user.getImgProfile())
+                        .placeholder(R.drawable.placeholder)
+                        .error(R.drawable.error)
+                        .fitCenter()
+                        .into(holder.image);
 
-        // Xử lý sự kiện cho các nút nếu cần
-        // ...
+        }
+
     }
 
     @Override
@@ -88,6 +91,21 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
             tvLocation = itemView.findViewById(R.id.tvLocation);
             btnLike = itemView.findViewById(R.id.btnLike);
             btnDislike = itemView.findViewById(R.id.btnDislike);
+
+            btnLike.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onLikeClicked(userList.get(position));
+                }
+            });
+
+            btnDislike.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onDislikeClicked(userList.get(position));
+                }
+            });
+
         }
 
     }
@@ -104,4 +122,5 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
         float distanceInMeters = location1.distanceTo(location2);
         return distanceInMeters / 1000;
     }
+
 }
