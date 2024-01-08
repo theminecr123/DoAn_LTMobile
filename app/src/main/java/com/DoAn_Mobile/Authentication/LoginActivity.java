@@ -221,7 +221,6 @@ public class LoginActivity extends AppCompatActivity {
                         mAuth.signOut();
                     } else {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        updateUI(user);
                     }
                 } else {
                     Toast.makeText(LoginActivity.this, "Wrong Email or Password!", Toast.LENGTH_SHORT).show();
@@ -261,7 +260,10 @@ public class LoginActivity extends AppCompatActivity {
                                                 userUpdate.put("name", username);
                                                 databaseReferences.child(currentUser.getUid()).updateChildren(userUpdate);
                                                 // Now that the user data is updated, start the activity
+                                                updateUI(currentUser);
                                                 finish();
+                                            }else {
+                                                updateUI(null);
                                             }
                                         }
                                     });

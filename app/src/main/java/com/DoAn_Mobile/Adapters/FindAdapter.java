@@ -52,7 +52,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
         User user = userList.get(position);
         // Tính toán và hiển thị khoảng cách
         if (user.getLocation() != null) {
-            float distance = calculateDistance(
+            int distance = calculateDistance(
                     currentUserLatitude,
                     currentUserLongitude,
                     user.getLocation().getLatitude(),
@@ -110,7 +110,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
 
     }
 
-    private float calculateDistance(double lat1, double long1, double lat2, double long2) {
+    private int calculateDistance(double lat1, double long1, double lat2, double long2) {
         Location location1 = new Location("");
         location1.setLatitude(lat1);
         location1.setLongitude(long1);
@@ -120,7 +120,9 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
         location2.setLongitude(long2);
 
         float distanceInMeters = location1.distanceTo(location2);
-        return distanceInMeters / 1000;
+        int distanceInKilometers = Math.round(distanceInMeters / 1000);
+        return distanceInKilometers;
     }
+
 
 }
