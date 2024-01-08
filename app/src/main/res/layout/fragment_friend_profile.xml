@@ -5,7 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
-
     <LinearLayout
         android:id="@+id/layout1"
         android:layout_width="match_parent"
@@ -18,7 +17,6 @@
             android:src="@drawable/golang"
             android:layout_gravity="center"
             android:layout_margin="8dp"/>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,8 +26,7 @@
                 android:id="@+id/username_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Tên tài khoản"
-                android:layout_gravity="center"
+                android:text="Tên tài khoản"
                 android:textStyle="bold"
                 android:textSize="18sp"/>
             <LinearLayout
@@ -45,57 +42,51 @@
                     android:text="Bài viết"
                     android:textSize="18sp"/>
                 <TextView
-                    android:id="@+id/followers"
+                    android:id="@+id/friend"
                     android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Bạn bè"
                     android:textSize="18sp" />
             </LinearLayout>
-            <Button
-                android:id="@+id/editbutton"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:text="Chỉnh sửa thông tin "
-                android:textColor="#fff"
-                android:textSize="15sp"
-                android:background="@drawable/border">
-            </Button>
         </LinearLayout>
     </LinearLayout>
+
     <LinearLayout
         android:layout_below="@+id/layout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
         <TextView
             android:id="@+id/description"
+            android:layout_below="@+id/layout1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/layout1"
             android:hint="Thêm miêu tả về bản thân"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="20sp" />
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/ProfileNav"
-            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:textColor="@android:color/darker_gray"/>
+        <Button
+            android:id="@+id/follow_button"
             android:layout_below="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FBFDFD"
+            android:layout_marginTop="20dp"
+            android:textColor="#fff"
+            android:background="@drawable/border"
+            android:text="Thêm bạn bè" />
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/ProfileNav"
+            android:layout_below="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FDFDFD"
             app:menu="@menu/menu_profile">
         </com.google.android.material.bottomnavigation.BottomNavigationView>
 
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewpagerprofile"
+            android:id="@+id/pv2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     </LinearLayout>
-
 </RelativeLayout>

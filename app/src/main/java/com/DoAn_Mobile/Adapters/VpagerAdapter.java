@@ -7,9 +7,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.DoAn_Mobile.Fragments.FindFragment;
 import com.DoAn_Mobile.Fragments.HomeFragment;
 import com.DoAn_Mobile.Fragments.ProfileFragment;
-import com.DoAn_Mobile.Fragments.FindFragment;
+//import com.DoAn_Mobile.Fragments.FindFragment;
 import com.DoAn_Mobile.Fragments.WatchFragment;
 public class VpagerAdapter extends FragmentStateAdapter {
 
