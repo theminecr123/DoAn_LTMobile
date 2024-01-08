@@ -1,57 +1,96 @@
-//package com.DoAn_Mobile.Adapters;
-//
-//
-//import android.view.LayoutInflater;
-//import android.view.View;
-//import android.view.ViewGroup;
-//import android.widget.ImageView;
-//import android.widget.TextView;
-//
-//import androidx.annotation.NonNull;
-//import androidx.recyclerview.widget.RecyclerView;
-//
-//import com.DoAn_Mobile.R;
-//
-//import java.util.ArrayList;
-//
-//public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHolder> {
-//
-//    ArrayList<Model2> khoahoclist = new ArrayList<>();
-//
-//    public WatchAdapter(ArrayList<Model2> khoahoclist) {
-//        this.khoahoclist = khoahoclist;
-//    }
-//
-//    @NonNull
-//    @Override
-//    public WatchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.watch_layout,parent,false);
-//        return new WatchViewHolder(view);
-//    }
-//
-//    @Override
-//    public void onBindViewHolder(@NonNull WatchViewHolder holder, int position) {
-//        holder.image.setImageResource(khoahoclist.get(position).image);
-//        holder.textView1.setText(khoahoclist.get(position).content);
-//        holder.textView2.setText(khoahoclist.get(position).content2);
-//    }
-//
-//    @Override
-//    public int getItemCount() {
-//        return khoahoclist.size();
-//    }
-//
-//    public class WatchViewHolder extends RecyclerView.ViewHolder{
-//
-//        ImageView image;
-//        TextView textView1,textView2;
-//
-//        public WatchViewHolder(@NonNull View itemView) {
-//            super(itemView);
-//
-//            image = itemView.findViewById(R.id.circularImage);
-//            textView1 = itemView.findViewById(R.id.textView1);
-//            textView2 = itemView.findViewById(R.id.textView2);
-//        }
-//    }
-//}
+package com.DoAn_Mobile.Adapters;
+
+
+import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.VideoView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import com.DoAn_Mobile.Authentication.User;
+import com.DoAn_Mobile.Fragments.WatchFragment;
+import com.DoAn_Mobile.Models.VideoInfo;
+import com.DoAn_Mobile.R;
+import com.bumptech.glide.Glide;
+
+
+import java.util.List;
+
+
+public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHolder> {
+
+
+
+    private List<VideoInfo> videoList;
+
+
+    public WatchAdapter(List<VideoInfo> videoList) {
+        this.videoList = videoList;
+
+    }
+    public List<VideoInfo> getVideoList() {
+        return videoList;
+    }
+    @NonNull
+    @Override
+    public WatchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_watch, parent,false);
+        return new WatchAdapter.WatchViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull WatchAdapter.WatchViewHolder holder, int position) {
+        VideoInfo video = videoList.get(position);
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return videoList.size();
+    }
+
+    public class WatchViewHolder extends RecyclerView.ViewHolder{
+         VideoView videoView;
+         ProgressBar progressBar;
+        ProgressBar loadingProgressBar;
+         SeekBar seekBar;
+         String videoUrl;
+         String videoTitle;
+         String videoDescription;
+         TextView timeTextView;
+         ImageView playPauseIcon;
+         boolean isVideoPlaying = false;
+         Handler handler = new Handler();
+
+
+
+        public WatchViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            progressBar = itemView.findViewById(R.id.progressBar);
+            seekBar = itemView.findViewById(R.id.seekBar);
+            loadingProgressBar = itemView.findViewById(R.id.loadingProgressBar);
+            timeTextView = itemView.findViewById(R.id.timeTextView);
+            playPauseIcon = itemView.findViewById(R.id.playPauseIcon);
+            videoView = itemView.findViewById(R.id.videoView);
+            seekBar = itemView.findViewById(R.id.seekBar);
+
+
+
+        }
+
+    }
+}
