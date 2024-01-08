@@ -1,47 +1,83 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/relv"
+<!-- res/layout/fragment_video.xml -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/circularImage"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="10dp"
-        android:padding="10dp"
-        android:src="@drawable/c">
+    <VideoView
+        android:id="@+id/videoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+    <!-- Add this inside your RelativeLayout -->
+    <ImageView
+        android:id="@+id/playPauseIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_play"
+        android:visibility="gone" />
 
-    </de.hdodenhof.circleimageview.CircleImageView>
 
-    <TextView
-        android:id="@+id/textView1"
+    <RelativeLayout
+        android:id="@+id/bottomLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="15dp"
-        android:layout_toRightOf="@id/circularImage"
-        android:text="Content Name"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold|italic">
+        android:layout_alignParentBottom="true">
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:layout_below="@id/videoDescription"/>
+        <TextView
+            android:id="@+id/videoTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FF0000"
+            android:padding="5dp"
+            android:text=""
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/videoDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="#FF0000"
+            android:text=""
+            android:textSize="14sp"
+            android:layout_marginBottom="20dp"
+            android:layout_below="@id/videoTitle"/>
+    </RelativeLayout>
 
-    </TextView>
-    <TextView
-        android:id="@+id/textView2"
+    <SeekBar
+        android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="15dp"
-        android:layout_toRightOf="@id/circularImage"
-        android:text="Description"
-        android:textColor="@color/black"
-        android:textSize="16sp">
+        android:layout_above="@id/bottomLayout"
+        android:layout_marginBottom="60dp" />
 
-    </TextView>
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottomLayout"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="38dp"
+        android:text="00:00 / 00:00"
+        android:textColor="#FF3D00"
+        android:textSize="16sp" />
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="visible" />
 
 </RelativeLayout>

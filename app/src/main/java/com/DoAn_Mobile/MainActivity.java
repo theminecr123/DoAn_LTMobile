@@ -15,12 +15,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.DoAn_Mobile.Adapters.WatchAdapter;
 import com.DoAn_Mobile.Authentication.LoginActivity;
+import com.DoAn_Mobile.Models.VideoInfo;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import com.DoAn_Mobile.Adapters.VpagerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,7 +90,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
 }
