@@ -9,12 +9,16 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.DoAn_Mobile.Activities.EditInfoActivity;
 import com.DoAn_Mobile.R;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -29,7 +33,9 @@ public class ProfileFragment extends Fragment {
     private TextView statusTextView;
     private TextView followersTextView;
     private TextView descriptionTextView;
-    private RecyclerView recyclerViewPosts;
+    private ViewPager2 viewpagerprofile;
+
+    private Button editbutton;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -39,16 +45,23 @@ public class ProfileFragment extends Fragment {
         statusTextView = view.findViewById(R.id.status);
         followersTextView = view.findViewById(R.id.followers);
         descriptionTextView = view.findViewById(R.id.description);
-        recyclerViewPosts = view.findViewById(R.id.recycler_view_posts);
+        viewpagerprofile = view.findViewById(R.id.viewpagerprofile);
+        editbutton = view.findViewById(R.id.editbutton);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerViewPosts.setLayoutManager(layoutManager);
 
         profileImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 openImageChooser();
                 return true;
+            }
+        });
+
+        editbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), EditInfoActivity.class);
+                startActivity(intent);
             }
         });
 

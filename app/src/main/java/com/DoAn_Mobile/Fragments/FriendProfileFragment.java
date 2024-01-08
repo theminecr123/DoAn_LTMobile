@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,7 @@ public class FriendProfileFragment extends Fragment {
     private TextView friendTextView;
     private TextView descriptionTextView;
     private Button followButton;
-    private RecyclerView recyclerViewPosts;
+    private ViewPager2 pagerviewprofile;
 
     @SuppressLint("MissingInflatedId")
     @Nullable
@@ -42,9 +43,7 @@ public class FriendProfileFragment extends Fragment {
         friendTextView = view.findViewById(R.id.followers);
         descriptionTextView = view.findViewById(R.id.description);
         followButton = view.findViewById(R.id.follow_button);
-        recyclerViewPosts = view.findViewById(R.id.recycler_view_posts);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerViewPosts.setLayoutManager(layoutManager);
+        pagerviewprofile = view.findViewById(R.id.pv2);
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

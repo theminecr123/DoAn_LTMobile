@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
 
@@ -10,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_image"
             android:layout_width="100dp"
@@ -24,12 +24,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginStart="16dp">
-
             <TextView
                 android:id="@+id/username_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tên tài khoản"
+                android:hint="Tên tài khoản"
                 android:textStyle="bold"
                 android:textSize="18sp"/>
             <LinearLayout
@@ -51,30 +50,50 @@
                     android:layout_height="wrap_content"
                     android:text="Bạn bè"
                     android:textSize="18sp" />
-
             </LinearLayout>
+            <Button
+                android:id="@+id/editbutton"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:text="Chỉnh sửa thông tin "
+                android:textColor="#fff"
+                android:textSize="15sp"
+                android:background="@drawable/border">
+            </Button>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:layout_below="@+id/layout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
         <TextView
             android:id="@+id/description"
-            android:layout_below="@+id/layout1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/layout1"
             android:hint="Thêm miêu tả về bản thân"
-            android:textSize="20sp"
-            android:textColor="@android:color/darker_gray"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_posts"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="20sp" />
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/ProfileNav"
+            android:layout_marginTop="20dp"
             android:layout_below="@+id/description"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="20dp"/>
+            android:layout_height="wrap_content"
+            android:background="#FBFDFD"
+            app:menu="@menu/menu_profile">
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewpagerprofile"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </LinearLayout>
 
 </RelativeLayout>
