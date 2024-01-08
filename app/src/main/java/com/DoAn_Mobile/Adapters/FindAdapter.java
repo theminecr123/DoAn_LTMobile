@@ -62,7 +62,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
                 holder.tvDescription.setText(user.getDescription());
                 holder.tvLocation.setText(distance + " km");
                 Glide.with(holder.image)
-                        .load(user.getImgProfile())
+                        .load(user.getBackgroundImageUrl())
                         .placeholder(R.drawable.placeholder)
                         .error(R.drawable.error)
                         .fitCenter()
