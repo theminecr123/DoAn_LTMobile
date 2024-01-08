@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
@@ -46,6 +45,8 @@ public class WatchFragment extends Fragment {
     private boolean isVideoPlaying = false;
     private Handler handler = new Handler();
 
+    ViewPager2 viewPager2;
+
 
     public WatchFragment() {
         // Required empty public constructor
@@ -73,12 +74,14 @@ public class WatchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.watch_layout, container, false);
+        View view = inflater.inflate(R.layout.item_watch, container, false);
         progressBar = view.findViewById(R.id.progressBar);
         seekBar = view.findViewById(R.id.seekBar);
         loadingProgressBar = view.findViewById(R.id.loadingProgressBar);
         timeTextView = view.findViewById(R.id.timeTextView);
         playPauseIcon = view.findViewById(R.id.playPauseIcon);
+
+        viewPager2 = view.findViewById(R.id.);
 
 
         videoView = view.findViewById(R.id.videoView);
@@ -86,6 +89,11 @@ public class WatchFragment extends Fragment {
 
         TextView titleTextView = view.findViewById(R.id.videoTitle);
         TextView descriptionTextView = view.findViewById(R.id.videoDescription);
+
+
+        List<VideoInfo> videoList = createVideoList();
+        WatchAdapter adapter = new WatchAdapter(getActivity(), videoList);
+        viewPager2.setAdapter(adapter);
 
 
         videoView.setOnTouchListener(new View.OnTouchListener() {
@@ -112,6 +120,7 @@ public class WatchFragment extends Fragment {
     }
 
 
+
     private void toggleVideoPlayback() {
         if (videoView.isPlaying()) {
             if (videoView.canPause()) {
@@ -123,14 +132,14 @@ public class WatchFragment extends Fragment {
             videoView.start();
             playPauseIcon.setVisibility(View.GONE);
         }
-        isVideoPlaying = !isVideoPlaying; // Đảo ngược trạng thái
+        isVideoPlaying = !isVideoPlaying;
     }
 
 
     private void setupVideoView() {
         loadingProgressBar.setVisibility(View.VISIBLE);
 
-        videoUrl = "https://scontent.fsgn2-8.fna.fbcdn.net/v/t42.1790-2/10000000_889525049222572_2743062092036994499_n.mp4?_nc_cat=102&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=sNxEkgogVfAAX9iv8m0&tn=tC3GIEFrzqYfo1EY&_nc_rml=0&_nc_ht=scontent.fsgn2-8.fna&oh=00_AfAYP7XCxzTzFdHnoNMSPskd1bc0V2dM94XuGktm8cbsjQ&oe=65A0B7F2";
+        //videoUrl = "https://scontent.fsgn2-8.fna.fbcdn.net/v/t42.1790-2/10000000_889525049222572_2743062092036994499_n.mp4?_nc_cat=102&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=sNxEkgogVfAAX9iv8m0&tn=tC3GIEFrzqYfo1EY&_nc_rml=0&_nc_ht=scontent.fsgn2-8.fna&oh=00_AfAYP7XCxzTzFdHnoNMSPskd1bc0V2dM94XuGktm8cbsjQ&oe=65A0B7F2";
         videoView.setVideoURI(Uri.parse(videoUrl));
 
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -266,9 +275,10 @@ public class WatchFragment extends Fragment {
     private List<VideoInfo> createVideoList() {
 
         List<VideoInfo> videoList = new ArrayList<>();
-        videoList.add(new VideoInfo("https://scontent.fsgn2-4.fna.fbcdn.net/v/t42.1790-2/185365283_756162445060285_2963631205927964585_n.mp4?_nc_cat=101&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=x4czlqljXW8AX-7Uac_&_nc_rml=0&_nc_ht=scontent.fsgn2-4.fna&oh=00_AfDELiX08oczpcmqhgTj2hdIT0kf8XCnUkO_9ljNYrq9WA&oe=657DF068", "Video 3", "Mô tả Video 3"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-9.fna.fbcdn.net/v/t42.1790-2/409755617_1486017978909611_1664535265145000459_n.mp4?_nc_cat=103&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=pWNgB5dJqFsAX8G9sM1&tn=tC3GIEFrzqYfo1EY&_nc_rml=0&_nc_ht=scontent.fsgn2-9.fna&oh=00_AfBvtULHoCxpJVIiS1cQTldXecKpLIPdnTes6Uvmh1NCeA&oe=657D4661", "Video 3", "Mô tả Video 3"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-11.fna.fbcdn.net/v/t42.1790-2/408881755_358735403370075_4480679822387902793_n.mp4?_nc_cat=105&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=moiwiCQpnygAX8rtV8L&_nc_rml=0&_nc_ht=scontent.fsgn2-11.fna&oh=00_AfDLcvNZPAKG9pAAD1dQY6PGkd6JT8uV3uB3AO-S9VtOvg&oe=657D00F1", "Video 4", "Mô tả Video 4"));
+        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/414814228_340362632187643_8354208551586456545_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=XKbPt0JeFSYAX8w8u6m&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfCB6C0Yctf_IuesAjs9VjxzXJzqUNVPsS0H0yJtd9Qt-A&oe=65A196F5", "Video 1", "Mô tả Video 1"));
+        videoList.add(new VideoInfo("https://mbasic.facebook.com/video_redirect/?src=https%3A%2F%2Fscontent.fsgn2-7.fna.fbcdn.net%2Fv%2Ft42.1790-2%2F416867649_345164178465637_2589608992327700614_n.mp4%3F_nc_cat%3D100%26ccb%3D1-7%26_nc_sid%3D55d0d3%26efg%3DeyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9%26_nc_ohc%3D3m0YDLjwi3kAX8qh8GJ%26_nc_rml%3D0%26_nc_ht%3Dscontent.fsgn2-7.fna%26oh%3D00_AfBfzNjM6wxO8S2_xsZ_gU-pvW3qKV67gV47QyaiSyLKSw%26oe%3D65A1025D&source=misc&id=6862444223853462&noredirect=0&watermark=0&__tn__=FH&paipv=0&eav=AfbJ5k9wcvHK8bOoBAFcmyYKMLkIn5pLyY4WMSwiylwnQgTGAGDslDb6hj_2AP2afdo", "Video 2", "Mô tả Video 2"));
+        //videoList.add(new VideoInfo(" ", "Video 3", "Mô tả Video 3"));
+
         return videoList;
     }
 
