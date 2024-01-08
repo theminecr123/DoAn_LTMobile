@@ -1,44 +1,80 @@
 package com.DoAn_Mobile.Fragments;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.DoAn_Mobile.Adapters.HomeAdapter;
-import com.DoAn_Mobile.Adapters.Model;
-//import com.DoAn_Mobile.Adapters.ProfileAdapter;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.DoAn_Mobile.R;
+import de.hdodenhof.circleimageview.CircleImageView;
 
-import java.util.ArrayList;
+import java.io.IOException;
 
 public class ProfileFragment extends Fragment {
 
-    RecyclerView recyclerView;
-    public ProfileFragment() {
-        // Required empty public constructor
+    private static final int PICK_IMAGE_REQUEST = 1;
+
+    private CircleImageView profileImage;
+    private TextView usernameTextView;
+    private TextView statusTextView;
+    private TextView followersTextView;
+    private TextView descriptionTextView;
+    private RecyclerView recyclerViewPosts;
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        profileImage = view.findViewById(R.id.profile_image);
+        usernameTextView = view.findViewById(R.id.username_text_view);
+        statusTextView = view.findViewById(R.id.status);
+        followersTextView = view.findViewById(R.id.followers);
+        descriptionTextView = view.findViewById(R.id.description);
+        recyclerViewPosts = view.findViewById(R.id.recycler_view_posts);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerViewPosts.setLayoutManager(layoutManager);
+
+        profileImage.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                openImageChooser();
+                return true;
+            }
+        });
+
+        return view;
+    }
+
+    private void openImageChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_recyclerview, container, false);
-        recyclerView = view.findViewById(R.id.rv);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri selectedImageUri = data.getData();
 
-
-
-
-//        ProfileAdapter profileAdapter = new ProfileAdapter(homelist);
-//        recyclerView.setAdapter(profileAdapter);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        return view;
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), selectedImageUri);
+                profileImage.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

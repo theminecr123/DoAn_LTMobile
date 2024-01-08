@@ -1,23 +1,15 @@
 package com.DoAn_Mobile;
 
-import android.annotation.SuppressLint;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.DoAn_Mobile.Authentication.LoginActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
+
 
 import com.DoAn_Mobile.Adapters.VpagerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
