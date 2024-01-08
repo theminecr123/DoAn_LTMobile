@@ -80,10 +80,10 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
         public WatchViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            progressBar = itemView.findViewById(R.id.progressBar);
+            //progressBar = itemView.findViewById(R.id.progressBar);
             seekBar = itemView.findViewById(R.id.seekBar);
             loadingProgressBar = itemView.findViewById(R.id.loadingProgressBar);
-            timeTextView = itemView.findViewById(R.id.timeTextView);
+            //timeTextView = itemView.findViewById(R.id.timeTextView);
             playPauseIcon = itemView.findViewById(R.id.playPauseIcon);
             videoView = itemView.findViewById(R.id.videoView);
             seekBar = itemView.findViewById(R.id.seekBar);

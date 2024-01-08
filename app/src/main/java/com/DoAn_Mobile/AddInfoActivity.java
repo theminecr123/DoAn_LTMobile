@@ -36,7 +36,7 @@ public class AddInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_info);
-        userReference = FirebaseFirestore.getInstance().collection("Users").document(FirebaseAuth.getInstance().getUid());
+        userReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid());
         nextButton = findViewById(R.id.btn_next);
         headerText = findViewById(R.id.txt_header);
 

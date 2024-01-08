@@ -37,10 +37,10 @@ public class UsernameFragment extends Fragment {
         username = view.findViewById(R.id.et_username);
         parent.headerText.setText("Choose a username");
         userNames = new ArrayList<>();
-        FirebaseFirestore.getInstance().collection("Users").get().addOnSuccessListener(userSnapshots -> {
+        FirebaseFirestore.getInstance().collection("users").get().addOnSuccessListener(userSnapshots -> {
             for (DocumentSnapshot userSnapshot : userSnapshots) {
                 User user = userSnapshot.toObject(User.class);
-                userNames.add(user.getUsername());
+                userNames.add(user.getName());
             }
         });
         parent.nextButton.setClickable(false);

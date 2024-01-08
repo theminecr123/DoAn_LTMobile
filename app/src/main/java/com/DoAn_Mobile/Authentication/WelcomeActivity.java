@@ -23,6 +23,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -32,7 +34,7 @@ import java.util.Map;
 public class WelcomeActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private DatabaseReference databaseReferences;
+    private FirebaseFirestore db; // Firestore instance
     private ActivityWelcomeBinding binding;
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
@@ -43,6 +45,7 @@ public class WelcomeActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
@@ -53,7 +56,7 @@ public class WelcomeActivity extends AppCompatActivity {
         binding.genderSpinner.setAdapter(adapter);
 
 
-        loadUserData();
+        loadUserDataFromFirestore();
 
         binding.btnChangeAVT.setOnClickListener(v -> openFileChooser());
 
@@ -64,30 +67,26 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         });
     }
-    private void loadUserData() {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String username = dataSnapshot.child("name").getValue(String.class);
-                    String gender = dataSnapshot.child("gender").getValue(String.class);
+    private void loadUserDataFromFirestore() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DocumentReference userRef = db.collection("users").document(uid);
 
-                    binding.username.setText(username);
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String username = documentSnapshot.getString("name");
+                String gender = documentSnapshot.getString("gender");
 
-                    if (gender != null) {
-                        int genderPosition = getGenderPosition(gender);
-                        if (genderPosition != -1) {
-                            binding.genderSpinner.setSelection(genderPosition);
-                        }
+                binding.username.setText(username);
+
+                if (gender != null) {
+                    int genderPosition = getGenderPosition(gender);
+                    if (genderPosition != -1) {
+                        binding.genderSpinner.setSelection(genderPosition);
                     }
-
                 }
             }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+        }).addOnFailureListener(e -> {
+            // Handle errors
         });
     }
     private int getGenderPosition(String gender) {
@@ -111,14 +110,15 @@ public class WelcomeActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
     private void updateUserInfo() {
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
         String uid = mAuth.getCurrentUser().getUid();
+        DocumentReference usersRef = db.collection("users").document(uid);
+
         Map<String, Object> userUpdates = new HashMap<>();
         userUpdates.put("name", binding.username.getText().toString());
         userUpdates.put("gender", binding.genderSpinner.getSelectedItem().toString());
         userUpdates.put("active", true);
 
-        usersRef.child(uid).updateChildren(userUpdates)
+        usersRef.update(userUpdates)
                 .addOnSuccessListener(aVoid -> {
                     if (imageUri != null) {
                         uploadImageToFirebase(imageUri);
@@ -127,7 +127,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
-
+                    // Handle errors
                 });
     }
     private void uploadImageToFirebase(Uri imageUri) {

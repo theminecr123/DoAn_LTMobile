@@ -44,7 +44,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         publisherReference.get().addOnSuccessListener(snapshot -> {
             User user = snapshot.toObject(User.class);
             Glide.with(mContext).load(user.getProfileImageUrl()).into(holder.profileImage);
-            holder.username.setText(user.getUsername());
+            holder.username.setText(user.getName());
             holder.comment.setText(comment.getText());
 
 //            holder.container.setOnClickListener(view -> {

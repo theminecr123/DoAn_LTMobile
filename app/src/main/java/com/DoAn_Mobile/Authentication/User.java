@@ -8,13 +8,15 @@ import java.util.List;
 public class User {
     String id;
     String name;
-    String username;
     String email;
     String bio;
     String profileImageUrl;
     String backgroundImageUrl;
     String onesignalPlayerId;
     boolean isPrivate;
+    Boolean isActive;
+    String gender;
+
     List<DocumentReference> posts;
     List<DocumentReference> saved;
     List<DocumentReference> following;
@@ -27,11 +29,19 @@ public class User {
 
     }
 
+    public User(String id, String email, String name, String profileImageUrl, String gender, String bio, Boolean isActive) {
+        this.id = id;
+        this.email = email;
+        this.bio = bio;
+        this.name = name;
+        this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.isActive = isActive;
+    }
 
-    public User(String id, String name, String username, String email, String profileImageUrl, String backgroundImageUrl) {
+    public User(String id, String name,  String email, String profileImageUrl, String backgroundImageUrl) {
         this.id = id;
         this.name = name;
-        this.username = username;
         this.email = email;
         this.onesignalPlayerId = "";
         this.profileImageUrl = profileImageUrl;
@@ -85,9 +95,6 @@ public class User {
         return name;
     }
 
-    public String getUsername() {
-        return username;
-    }
 
     public String getBio() {
         return bio;
@@ -116,5 +123,70 @@ public class User {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void setBackgroundImageUrl(String backgroundImageUrl) {
+        this.backgroundImageUrl = backgroundImageUrl;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setPosts(List<DocumentReference> posts) {
+        this.posts = posts;
+    }
+
+    public void setSaved(List<DocumentReference> saved) {
+        this.saved = saved;
+    }
+
+    public void setFollowing(List<DocumentReference> following) {
+        this.following = following;
+    }
+
+    public void setFollowers(List<DocumentReference> followers) {
+        this.followers = followers;
+    }
+
+    public void setBlockedAccounts(List<DocumentReference> blockedAccounts) {
+        this.blockedAccounts = blockedAccounts;
     }
 }

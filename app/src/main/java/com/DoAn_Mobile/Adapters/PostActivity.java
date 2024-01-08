@@ -192,7 +192,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     void updateUserPostsAndFeed(DocumentReference postReference) {
-        DocumentReference userReference = db.collection("Users").document(user.getUid());
+        DocumentReference userReference = db.collection("users").document(user.getUid());
         userReference.update("posts", FieldValue.arrayUnion(postReference));
 
         Map<String, Object> map = new HashMap<>();

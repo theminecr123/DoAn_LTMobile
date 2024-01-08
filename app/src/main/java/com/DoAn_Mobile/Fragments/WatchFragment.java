@@ -75,25 +75,25 @@ public class WatchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.item_watch, container, false);
-        progressBar = view.findViewById(R.id.progressBar);
+        //progressBar = view.findViewById(R.id.progressBar);
         seekBar = view.findViewById(R.id.seekBar);
         loadingProgressBar = view.findViewById(R.id.loadingProgressBar);
-        timeTextView = view.findViewById(R.id.timeTextView);
+        //timeTextView = view.findViewById(R.id.timeTextView);
         playPauseIcon = view.findViewById(R.id.playPauseIcon);
 
-        viewPager2 = view.findViewById(R.id.);
+        //viewPager2 = view.findViewById(R.id.);
 
 
         videoView = view.findViewById(R.id.videoView);
         seekBar = view.findViewById(R.id.seekBar);
 
-        TextView titleTextView = view.findViewById(R.id.videoTitle);
-        TextView descriptionTextView = view.findViewById(R.id.videoDescription);
-
-
-        List<VideoInfo> videoList = createVideoList();
-        WatchAdapter adapter = new WatchAdapter(getActivity(), videoList);
-        viewPager2.setAdapter(adapter);
+//        TextView titleTextView = view.findViewById(R.id.videoTitle);
+//        TextView descriptionTextView = view.findViewById(R.id.videoDescription);
+//
+//
+//        List<VideoInfo> videoList = createVideoList();
+//        WatchAdapter adapter = new WatchAdapter(getActivity(), videoList);
+//        viewPager2.setAdapter(adapter);
 
 
         videoView.setOnTouchListener(new View.OnTouchListener() {
@@ -111,8 +111,8 @@ public class WatchFragment extends Fragment {
             videoTitle = getArguments().getString("title");
             videoDescription = getArguments().getString("description");
 
-            titleTextView.setText(videoTitle);
-            descriptionTextView.setText(videoDescription);
+//            titleTextView.setText(videoTitle);
+//            descriptionTextView.setText(videoDescription);
         }
 
         setupVideoView();

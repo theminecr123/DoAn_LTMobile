@@ -17,60 +17,54 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SplashActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private DatabaseReference databaseReferences;
+    private FirebaseFirestore db; // Firestore instance
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance(); // Initialize Firestore
+
         LottieAnimationView animationView = findViewById(R.id.lottieAnimationView);
         animationView.playAnimation();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference usersRef = database.getReference("users");
 
         String uid = mAuth.getUid(); // Thay thế với UID thực tế của người dùng
-        DatabaseReference isActiveRef = usersRef.child(uid).child("active");
+        DocumentReference isActiveRef = db.collection("users").document(uid);
 
-        isActiveRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Boolean isActive = dataSnapshot.getValue(Boolean.class);
+        isActiveRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Boolean isActive = documentSnapshot.getBoolean("active");
 
-                    if(isActive == false){
-                        Intent intent = new Intent(SplashActivity.this, WelcomeActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }else{
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent = getIntent();
-                                if (intent != null) {
-                                    String sourceActivity = intent.getStringExtra("source_activity");
-                                    if (sourceActivity != null && sourceActivity.equals("toMain")) {
-                                        Intent newIntent = new Intent(SplashActivity.this, MainActivity.class);
-                                        startActivity(newIntent);
-                                        finish();
-                                    }
+                if (isActive != null && !isActive) {
+                    Intent intent = new Intent(SplashActivity.this, WelcomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = getIntent();
+                            if (intent != null) {
+                                String sourceActivity = intent.getStringExtra("source_activity");
+                                if (sourceActivity != null && sourceActivity.equals("toMain")) {
+                                    Intent newIntent = new Intent(SplashActivity.this, MainActivity.class);
+                                    startActivity(newIntent);
+                                    finish();
                                 }
                             }
-                        }, 1000);
-
-                    }
+                        }
+                    }, 1000);
                 }
             }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Xử lý lỗi đọc dữ liệu
-            }
+        }).addOnFailureListener(e -> {
+            // Xử lý lỗi đọc dữ liệu
         });
-
     }
 }

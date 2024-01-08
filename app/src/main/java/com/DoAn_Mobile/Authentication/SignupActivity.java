@@ -27,13 +27,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class SignupActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private DatabaseReference databaseReferences;
-
+    private FirebaseFirestore db;
     private EditText edtEmail;
     private EditText edtPassword;
     private EditText edtConfPassword;
@@ -44,7 +46,7 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         mAuth = FirebaseAuth.getInstance();
-        databaseReferences = FirebaseDatabase.getInstance().getReference();
+        db = FirebaseFirestore.getInstance();
 
 
         edtEmail = findViewById(R.id.edtEmail);
@@ -52,36 +54,44 @@ public class SignupActivity extends AppCompatActivity {
         edtConfPassword = findViewById(R.id.edtConfirmPassword);
         tvNotePass = findViewById(R.id.txtNotePass);
         btnLogin = findViewById(R.id.btnLogin);
+        Button btnSignup = findViewById(R.id.btnSignup);
         btnLogin.setOnClickListener(v -> {
             Intent intent = new Intent(this,LoginActivity.class);
             startActivity(intent);
         });
 
-        Button btnSignup = findViewById(R.id.btnSignup);
-            btnSignup.setOnClickListener(v -> {
-                if(isValid()) {
-                    String email = edtEmail.getText().toString();
-                    String password = edtPassword.getText().toString();
+        btnSignup.setOnClickListener(v -> {
+            if(isValid()) {
+                String email = edtEmail.getText().toString();
+                String password = edtPassword.getText().toString();
 
-                    mAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        mAuth.getCurrentUser().sendEmailVerification();
-                                        mAuth.signOut();
-                                        Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                        Toast.makeText(SignupActivity.this, "Account Created! Vui lòng xác thực Email trước khi đăng nhập!", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                    } else {
-                                        Toast.makeText(SignupActivity.this, "Authentication failed.",
-                                                Toast.LENGTH_SHORT).show();
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    // Tạo document người dùng mới trong Firestore
+                                    FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                                    Map<String, Object> user = new HashMap<>();
+                                    user.put("email", email);
+                                    // thêm các trường khác nếu cần
+                                    if (firebaseUser != null) {
+                                        db.collection("users").document(firebaseUser.getUid()).set(user);
                                     }
+
+                                    mAuth.getCurrentUser().sendEmailVerification();
+                                    mAuth.signOut();
+                                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                                    startActivity(intent);
+                                    Toast.makeText(SignupActivity.this, "Account Created! Vui lòng xác thực Email trước khi đăng nhập!", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                } else {
+                                    Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                }
-            });
+                            }
+                        });
+            }
+        });
 
 
 

@@ -15,230 +15,329 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.InputType;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.DoAn_Mobile.AddInfoActivity;
 import com.DoAn_Mobile.MainActivity;
-import com.DoAn_Mobile.SignupEmailActivity;
+import com.DoAn_Mobile.R;
+import com.DoAn_Mobile.UI.SplashActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.DoAn_Mobile.R;
-import com.DoAn_Mobile.Authentication.User;
-import com.onesignal.OSDeviceState;
-import com.onesignal.OneSignal;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText email, password;
-    Button loginButton, googleButton, forgetPasswordButton;
-    TextView signupText;
-    FirebaseAuth auth;
-    GoogleSignInClient googleSignInClient;
-    CollectionReference usersReference;
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+    private DatabaseReference databaseReferences;
+    TextView btnSignup;
+    private FirebaseFirestore db;
+
+    EditText edtEmail, edtPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        email = findViewById(R.id.et_email);
-        password = findViewById(R.id.et_password);
-        loginButton = findViewById(R.id.btn_login);
-        googleButton = findViewById(R.id.btn_google);
-        forgetPasswordButton = findViewById(R.id.btn_forget_password);
-        signupText = findViewById(R.id.txt_signup);
 
-        auth = FirebaseAuth.getInstance();
-        usersReference = FirebaseFirestore.getInstance().collection("Users");
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(
-                GoogleSignInOptions.DEFAULT_SIGN_IN
-        ).requestIdToken(getString(R.string.default_web_client_id))
+        Button btnLogin;
+        edtEmail = findViewById(R.id.edtEmail2);
+        edtPassword = findViewById(R.id.edtPassword2);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnLogin.setOnClickListener(v -> {
+            String email = edtEmail.getText().toString();
+            String password = edtPassword.getText().toString();
+            if(isValid()){
+                signInEmailPassword(email,password);
+            }
+
+
+        });
+
+        edtEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isValidEmail(s.toString())) {
+                    edtEmail.setError(null);
+
+
+                } else {
+                    // Nếu mật khẩu không hợp lệ, có thể hiển thị thông báo lỗi
+                    edtEmail.setError("Email không hợp lệ");
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        edtPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isValidPassword(s.toString())) {
+                    edtPassword.setError(null);
+                } else {
+                    // Nếu mật khẩu không hợp lệ, có thể hiển thị thông báo lỗi
+                    edtPassword.setError("Mật khẩu không hợp lệ");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        btnSignup = findViewById(R.id.btnSignup);
+
+        btnSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(this,SignupActivity.class);
+            startActivity(intent);
+        });
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        googleSignInClient = GoogleSignIn.getClient(LoginActivity.this
-                , googleSignInOptions);
 
-
-        loginButton.setOnClickListener(view -> {
-            String strEmail = email.getText().toString();
-            String strPassword = password.getText().toString();
-            login(strEmail, strPassword);
-        });
-
-        signupText.setOnClickListener(view -> startActivity(new Intent(LoginActivity.this, SignupEmailActivity.class)));
-        googleButton.setOnClickListener(view -> {
-            Intent intent = googleSignInClient.getSignInIntent();
-            startActivityForResult(intent, 100);
-        });
-        forgetPasswordButton.setOnClickListener(view -> {
-            showRecoverPasswordDialog();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        ImageView button = findViewById(R.id.btnButton);
+        button.setOnClickListener(v -> {
+            signIn();
         });
     }
-
-    void login(String strEmail, String strPassword) {
-        if (strEmail.isEmpty() || strPassword.isEmpty()) {
-            Toast.makeText(this, "Enter all fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        auth.signInWithEmailAndPassword(strEmail, strPassword).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                if (auth.getCurrentUser().isEmailVerified()) {
-                    doValidUserShit();
-                } else {
-                    Toast.makeText(this, "Verify your email first\nLink sent to " + auth.getCurrentUser().getEmail(), Toast.LENGTH_SHORT).show();
-                    auth.getCurrentUser().sendEmailVerification();
-                }
-            } else {
-                Toast.makeText(this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void doValidUserShit() {
-        DocumentReference userReference = FirebaseFirestore.getInstance().document("Users/" + auth.getUid());
-
-        OSDeviceState device = OneSignal.getDeviceState();
-        assert device != null;
-        String playerID = device.getUserId();
-        userReference.update("onesignalPlayerId", playerID);
-
-        userReference.get().addOnCompleteListener(task0 -> {
-            if (task0.isSuccessful()) {
-                User user = task0.getResult().toObject(User.class);
-                if (user == null) {
-                    user = new User(auth.getUid(), "", "", auth.getCurrentUser().getEmail(), getResources().getString(R.string.default_profile_img_url), getResources().getString(R.string.default_background_img_url));
-                    user.setOnesignalPlayerId(playerID);
-                    userReference.set(user).addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, auth.getUid(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(LoginActivity.this, task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    startAddInfoActivity();
-                } else {
-                    if (user.getUsername().isEmpty()) {
-                        startAddInfoActivity();
-                    } else {
-                        startMainActivity();
-                    }
-                }
-            } else {
-                Toast.makeText(this, task0.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    void showRecoverPasswordDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Recover Password");
-        LinearLayout linearLayout = new LinearLayout(this);
-        final EditText emailEt = new EditText(this);
-
-        emailEt.setText(email.getText());
-        emailEt.setMinEms(14);
-        emailEt.setHint("E-mail");
-        emailEt.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        linearLayout.addView(emailEt);
-        linearLayout.setPadding(30, 20, 30, 10);
-        builder.setView(linearLayout);
-
-        builder.setPositiveButton("Recover", (dialog, which) -> {
-            String email = emailEt.getText().toString().trim();
-            if (!email.isEmpty()) beginRecovery(email);
-        });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
-    }
-
-    private void beginRecovery(String email) {
-        ProgressDialog loadingBar = new ProgressDialog(this);
-        loadingBar.setMessage("Sending Email....");
-        loadingBar.setCanceledOnTouchOutside(false);
-        loadingBar.show();
-
-        auth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
-            loadingBar.dismiss();
-            if (task.isSuccessful()) {
-                Toast.makeText(LoginActivity.this, "Recovery email sent", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            updateUI(currentUser);
+        }
+    }
+    private void updateUI(FirebaseUser user) {
+        databaseReferences = FirebaseDatabase.getInstance().getReference("users");
+
+        if(user!=null){
+            createSession();
+            Intent intent = new Intent(LoginActivity.this, SplashActivity.class);
+            intent.putExtra("source_activity", "toMain");
+            startActivity(intent);
+        }
+    }
+
+    private void createSession() {
+        String sessionId = UUID.randomUUID().toString();
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            DocumentReference docRef = db.collection("users").document(user.getUid());
+            Map<String, Object> sessionInfo = new HashMap<>();
+            sessionInfo.put("session", sessionId);
+            docRef.update(sessionInfo);
+            storeSessionId(sessionId);
+        }
+    }
+
+    private void storeSessionId(String sessionId) {
+        SharedPreferences sharedPref = getSharedPreferences("PreSession2", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("sessionID2", sessionId);
+        editor.apply();
+    }
+
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private static final int RC_SIGN_IN = 40;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100) {
-            Task<GoogleSignInAccount> signInAccountTask = GoogleSignIn
-                    .getSignedInAccountFromIntent(data);
 
-            if (signInAccountTask.isSuccessful()) {
-                Toast.makeText(this, "Google sign in successful", Toast.LENGTH_SHORT).show();
-                try {
-                    GoogleSignInAccount googleSignInAccount = signInAccountTask
-                            .getResult(ApiException.class);
-                    if (googleSignInAccount != null) {
-                        AuthCredential authCredential = GoogleAuthProvider
-                                .getCredential(googleSignInAccount.getIdToken()
-                                        , null);
-                        auth.signInWithCredential(authCredential)
-                                .addOnCompleteListener(this, task -> {
-                                    if (task.isSuccessful()) {
-                                        doValidUserShit();
-                                    } else {
-                                        Toast.makeText(this, "Authentication Failed :" +
-                                                task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-                    }
-                } catch (ApiException e) {
-                    Log.e("ApiException", e.getMessage());
-                    e.printStackTrace();
-                }
-            } else {
-                Log.e("signInAccountTask", signInAccountTask.getException().getMessage());
-                signInAccountTask.getException().printStackTrace();
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account.getIdToken());
+            } catch (ApiException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    private void startAddInfoActivity() {
-        Intent intent = new Intent(LoginActivity.this, AddInfoActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            checkIfEmailExists(user.getEmail());
+                            updateUI(user);
+                            finish();
+
+                        } else {
+                            updateUI(null);
+                            Toast.makeText(LoginActivity.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
-    void startMainActivity() {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+    // Sign in Email/Password
+    private void signInEmailPassword(String loginEmail, String loginPassword) {
+        mAuth.signInWithEmailAndPassword(loginEmail, loginPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    if (!mAuth.getCurrentUser().isEmailVerified()) {
+                        Toast.makeText(LoginActivity.this, "Vui lòng xác thực Email trước khi đăng nhập!", Toast.LENGTH_SHORT).show();
+                        mAuth.signOut();
+                    } else {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        checkIfEmailExists(user.getEmail());
+                        updateUI(user);
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, "Wrong Email or Password!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    // end Sign in Email/Password
+    private void checkIfEmailExists(String email) {
+        if (email != null) {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                // Người dùng đã đăng nhập
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                CollectionReference usersRef = db.collection("users");
+
+                usersRef.whereEqualTo("email", email).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            if (!querySnapshot.isEmpty()) {
+                                // Email đã tồn tại trong cơ sở dữ liệu
+                                for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                                    // Xử lý mỗi tài liệu ở đây
+                                    Map<String, Object> userUpdate = new HashMap<>();
+                                    userUpdate.put("id", currentUser.getUid());
+                                    userUpdate.put("email", documentSnapshot.getString("email"));
+                                    userUpdate.put("bio", documentSnapshot.getString("bio"));
+                                    userUpdate.put("gender", documentSnapshot.getString("gender"));
+                                    userUpdate.put("active", documentSnapshot.getBoolean("active"));
+                                    userUpdate.put("imgProfile", documentSnapshot.getString("imgProfile"));
+                                    userUpdate.put("name", documentSnapshot.getString("name"));
+
+                                    usersRef.document(currentUser.getUid()).update(userUpdate);
+                                    updateUI(currentUser);
+                                    finish();
+                                }
+                            } else {
+                                // Email chưa tồn tại trong cơ sở dữ liệu
+                                User users = new User(currentUser.getUid(), currentUser.getEmail(), currentUser.getDisplayName(), "", "Male","", false);
+                                usersRef.document(currentUser.getUid()).set(users)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(LoginActivity.this, "Welcome, " + currentUser.getDisplayName(), Toast.LENGTH_SHORT).show();
+                                                    updateUI(currentUser);
+                                                    finish();
+                                                } else {
+                                                    updateUI(null);
+                                                    Toast.makeText(LoginActivity.this, "Failed to create user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            // Xử lý lỗi truy vấn
+                            Toast.makeText(LoginActivity.this, "Query failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(LoginActivity.this, "User not logged in", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+    public static boolean isValidEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        if (email == null){
+            return false;
+        }
+
+        return pattern.matcher(email).matches();
+    }
+    public static boolean isValidPassword(String password) {
+        String passwordRegex = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,20}$";
+        Pattern pattern = Pattern.compile(passwordRegex);
+        if (password == null){
+            return false;
+        }
+
+        return pattern.matcher(password).matches();
+    }
+
+
+    private boolean isValid(){
+        if(!isValidEmail(edtEmail.getText().toString())){
+            return false;
+        } else if (!isValidPassword(edtPassword.getText().toString())) {
+            return false;
+        }else
+            return true;
     }
 }

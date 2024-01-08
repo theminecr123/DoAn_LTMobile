@@ -66,7 +66,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.adapter_post, parent, false);
         db = FirebaseFirestore.getInstance();
-        userReference = db.collection("Users").document(FirebaseAuth.getInstance().getUid());
+        userReference = db.collection("users").document(FirebaseAuth.getInstance().getUid());
         ViewHolder.userReference = userReference;
         return new ViewHolder(view);
     }
@@ -75,10 +75,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Post post = mPosts.toArray(new Post[0])[position];
 
-        db.collection("Users").document(post.getCreator()).get().addOnSuccessListener(snapshot -> {
+        db.collection("users").document(post.getCreator()).get().addOnSuccessListener(snapshot -> {
             User creator = snapshot.toObject(User.class);
             Glide.with(mContext).load(creator.getProfileImageUrl()).into(holder.profileImage);
-            holder.username.setText(creator.getUsername());
+            holder.username.setText(creator.getName());
         });
 
         holder.post = post;
