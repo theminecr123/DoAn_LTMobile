@@ -11,15 +11,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.DoAn_Mobile.Activities.EditInfoActivity;
 import com.DoAn_Mobile.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import java.io.IOException;
@@ -27,6 +33,7 @@ import java.io.IOException;
 public class ProfileFragment extends Fragment {
 
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int EDIT_INFO_REQUEST_CODE = 100;
 
     private CircleImageView profileImage;
     private TextView usernameTextView;
@@ -34,8 +41,9 @@ public class ProfileFragment extends Fragment {
     private TextView followersTextView;
     private TextView descriptionTextView;
     private ViewPager2 viewpagerprofile;
-
     private Button editbutton;
+    private FirebaseAuth mAuth;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -48,6 +56,7 @@ public class ProfileFragment extends Fragment {
         viewpagerprofile = view.findViewById(R.id.viewpagerprofile);
         editbutton = view.findViewById(R.id.editbutton);
 
+        mAuth = FirebaseAuth.getInstance();
 
         profileImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -61,7 +70,26 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), EditInfoActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, EDIT_INFO_REQUEST_CODE);
+            }
+        });
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String username = dataSnapshot.child("name").getValue(String.class);
+                    String status = dataSnapshot.child("status").getValue(String.class);
+
+                    usernameTextView.setText(username);
+                    statusTextView.setText(status);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Xử lý lỗi nếu có
             }
         });
 
@@ -88,6 +116,12 @@ public class ProfileFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else if (requestCode == EDIT_INFO_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            String updatedName = data.getStringExtra("updatedName");
+            String updatedGender = data.getStringExtra("updatedGender");
+
+            usernameTextView.setText(updatedName);
+
         }
     }
 }

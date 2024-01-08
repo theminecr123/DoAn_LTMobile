@@ -1,19 +1,20 @@
 package com.DoAn_Mobile.Authentication;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.DoAn_Mobile.MainActivity;
 import com.DoAn_Mobile.R;
-import com.DoAn_Mobile.UI.SplashActivity;
 import com.DoAn_Mobile.databinding.ActivityWelcomeBinding;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,16 +29,13 @@ import com.google.firebase.storage.StorageReference;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class WelcomeActivity extends AppCompatActivity {
+
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReferences;
     private ActivityWelcomeBinding binding;
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,95 +44,92 @@ public class WelcomeActivity extends AppCompatActivity {
         setContentView(view);
         mAuth = FirebaseAuth.getInstance();
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference userRef = database.getReference("users").child(mAuth.getUid()); // Thay userId bằng ID thực của người dùng
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.gender_array,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.genderSpinner.setAdapter(adapter);
 
-        userRef.child("imgProfile").addListenerForSingleValueEvent(new ValueEventListener() {
+
+        loadUserData();
+
+        binding.btnChangeAVT.setOnClickListener(v -> openFileChooser());
+
+        binding.btnNext.setOnClickListener(v -> {
+
+            if (isUserDataValid()) {
+                updateUserInfo();
+            }
+        });
+    }
+    private void loadUserData() {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String imageUriString = dataSnapshot.getValue(String.class);
-                    Glide.with(WelcomeActivity.this)
-                            .load(imageUriString)
-                            .placeholder(R.drawable.placeholder) // Ảnh placeholder
-                            .error(R.drawable.error) // Ảnh hiển thị khi có lỗi
-                            .fitCenter()
-                            .into(binding.imgAvatar);   }
+                    String username = dataSnapshot.child("name").getValue(String.class);
+                    String gender = dataSnapshot.child("gender").getValue(String.class);
 
+                    binding.username.setText(username);
+
+                    if (gender != null) {
+                        int genderPosition = getGenderPosition(gender);
+                        if (genderPosition != -1) {
+                            binding.genderSpinner.setSelection(genderPosition);
+                        }
+                    }
+
+                }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
-                // Xử lý lỗi
+
             }
         });
-        binding.btnChangeAVT.setOnClickListener(v -> openFileChooser());
-
-
-        //FirebaseDatabase database = FirebaseDatabase.getInstance();
-        String uid = mAuth.getCurrentUser().getUid();
-        binding.btnNext.setOnClickListener(v -> {
-            
-            Map<String, Object> userUpdates = new HashMap<>();
-            userUpdates.put("name", binding.username.getText().toString());
-            userUpdates.put("gender", binding.genderSpinner.getSelectedItem().toString());
-            userUpdates.put("active",true);
-
-            DatabaseReference usersRef = database.getReference("users");
-            usersRef.orderByChild("name").equalTo(binding.username.getText().toString())
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()) {
-                                binding.username.setError("Tên đã tồn tại!");
-
-                            } else {
-                                usersRef.child(uid).updateChildren(userUpdates)
-                                        .addOnSuccessListener(aVoid -> {
-                                            if (imageUri != null) {
-                                                uploadImageToFirebase(imageUri);
-                                            } else {
-                                                // Xử lý trường hợp khi không có ảnh được chọn
-                                            }
-                                            Intent newIntent = new Intent(WelcomeActivity.this, MainActivity.class);
-                                            startActivity(newIntent);
-                                            finish();
-
-                                        })
-                                        .addOnFailureListener(e -> {
-                                        });                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
-        });
-
-
     }
-
-
+    private int getGenderPosition(String gender) {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.gender_array,
+                android.R.layout.simple_spinner_item
+        );
+        int count = adapter.getCount();
+        for (int i = 0; i < count; i++) {
+            if (adapter.getItem(i).toString().equals(gender)) {
+                return i;
+            }
+        }
+        return -1;
+    }
     private void openFileChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
+    private void updateUserInfo() {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+        String uid = mAuth.getCurrentUser().getUid();
+        Map<String, Object> userUpdates = new HashMap<>();
+        userUpdates.put("name", binding.username.getText().toString());
+        userUpdates.put("gender", binding.genderSpinner.getSelectedItem().toString());
+        userUpdates.put("active", true);
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        usersRef.child(uid).updateChildren(userUpdates)
+                .addOnSuccessListener(aVoid -> {
+                    if (imageUri != null) {
+                        uploadImageToFirebase(imageUri);
+                    } else {
+                        startMainActivity();
+                    }
+                })
+                .addOnFailureListener(e -> {
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            binding.imgAvatar.setImageURI(imageUri);
-        }
+                });
     }
-
     private void uploadImageToFirebase(Uri imageUri) {
         if (imageUri != null) {
             StorageReference fileReference = FirebaseStorage.getInstance().getReference("uploads").child(System.currentTimeMillis() + getFileExtension(imageUri));
@@ -143,20 +138,13 @@ public class WelcomeActivity extends AppCompatActivity {
                     .addOnSuccessListener(taskSnapshot -> {
                         taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(uri -> {
                             String imageUrl = uri.toString();
-                            // Lưu URL này vào Firebase Realtime Database
                             saveImageUrlToDatabase(imageUrl);
                         });
                     })
                     .addOnFailureListener(e -> {
-                        // Xử lý lỗi
+
                     });
         }
-    }
-
-    private String getFileExtension(Uri uri) {
-        ContentResolver contentResolver = getContentResolver();
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
     private void saveImageUrlToDatabase(String imageUrl) {
@@ -167,11 +155,40 @@ public class WelcomeActivity extends AppCompatActivity {
 
         databaseRef.child(uid).updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
-                    // Xử lý khi cập nhật thành công
+                    startMainActivity();
                 })
                 .addOnFailureListener(e -> {
-                    // Xử lý khi có lỗi
+
                 });
     }
 
+    private void startMainActivity() {
+        Intent newIntent = new Intent(WelcomeActivity.this, MainActivity.class);
+        startActivity(newIntent);
+        finish();
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    private boolean isUserDataValid() {
+
+        String username = binding.username.getText().toString().trim();
+        String gender = binding.genderSpinner.getSelectedItem().toString();
+
+        if (username.isEmpty()) {
+            binding.username.setError("Vui lòng nhập tên của bạn");
+            return false;
+        }
+
+        if (gender.equals("Chọn giới tính")) {
+
+            return false;
+        }
+
+        return true;
+    }
 }

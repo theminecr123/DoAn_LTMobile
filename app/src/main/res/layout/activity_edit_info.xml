@@ -47,20 +47,6 @@
                 tools:layout_editor_absoluteX="0dp"
                 tools:layout_editor_absoluteY="82dp" />
 
-            <EditText
-                android:id="@+id/editDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/border_text"
-                android:hint="Ngày sinh"
-                android:inputType="datetime"
-                android:paddingStart="12dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="12dp"
-                android:textSize="30sp"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="157dp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

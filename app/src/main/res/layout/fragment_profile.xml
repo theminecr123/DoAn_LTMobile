@@ -29,6 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="Tên tài khoản"
+                android:layout_gravity="center"
                 android:textStyle="bold"
                 android:textSize="18sp"/>
             <LinearLayout
@@ -69,8 +70,8 @@
         android:layout_below="@+id/layout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
+
         <TextView
             android:id="@+id/description"
             android:layout_width="wrap_content"
@@ -79,6 +80,7 @@
             android:hint="Thêm miêu tả về bản thân"
             android:textColor="@android:color/darker_gray"
             android:textSize="20sp" />
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/ProfileNav"
             android:layout_marginTop="20dp"
