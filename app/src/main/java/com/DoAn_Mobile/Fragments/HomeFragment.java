@@ -18,6 +18,7 @@ import com.DoAn_Mobile.Adapters.Model;
 import com.DoAn_Mobile.Adapters.Post;
 import com.DoAn_Mobile.Adapters.PostActivity;
 import com.DoAn_Mobile.Adapters.PostAdapter;
+import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -40,31 +41,31 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         recyclerViewPosts = view.findViewById(R.id.recyclerview_posts);
 
-//        toolbar = view.findViewById(R.id.top_menu);
-//
-//        toolbar.setOnMenuItemClickListener(item -> {
-//            Intent intent;
-//            switch (item.getItemId()) {
-//                case R.id.nav_post_image:
-//                    intent = new Intent(requireActivity(), PostActivity.class);
+        toolbar = view.findViewById(R.id.top_menu);
+
+        toolbar.setOnMenuItemClickListener(item -> {
+            Intent intent;
+            switch (item.getItemId()) {
+                case R.id.nav_post_image:
+                    intent = new Intent(requireActivity(), PostActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("type", "picture");
+                    startActivity(intent);
+                    break;
+                case R.id.nav_post_text:
+                    intent = new Intent(requireActivity(), PostActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("type", "text");
+                    startActivity(intent);
+                    break;
+//                case R.id.nav_chat:
+//                    intent = new Intent(requireActivity(), ChatHomeActivity.class);
 //                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    intent.putExtra("type", "picture");
 //                    startActivity(intent);
 //                    break;
-//                case R.id.nav_post_text:
-//                    intent = new Intent(requireActivity(), PostActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    intent.putExtra("type", "text");
-//                    startActivity(intent);
-//                    break;
-////                case R.id.nav_chat:
-////                    intent = new Intent(requireActivity(), ChatHomeActivity.class);
-////                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-////                    startActivity(intent);
-////                    break;
-//            }
-//            return true;
-//        });
+            }
+            return true;
+        });
 
         postAdapter = new PostAdapter(requireContext());
         recyclerViewPosts.setHasFixedSize(true);
@@ -75,11 +76,11 @@ public class HomeFragment extends Fragment {
 
 
     void readPosts() {
-//        DocumentReference userReference = FirebaseFirestore.getInstance().collection("Users").document(FirebaseAuth.getInstance().getUid());
-//        userReference.get().addOnSuccessListener(userSnapshot -> {
-//            User user = userSnapshot.toObject(User.class);
-//
-//        });
+        DocumentReference userReference = FirebaseFirestore.getInstance().collection("Users").document(FirebaseAuth.getInstance().getUid());
+        userReference.get().addOnSuccessListener(userSnapshot -> {
+            User user = userSnapshot.toObject(User.class);
+
+        });
 
 
         CollectionReference feedReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("feed");
