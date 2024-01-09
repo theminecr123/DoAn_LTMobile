@@ -20,10 +20,10 @@ import com.DoAn_Mobile.Adapters.PostActivity;
 import com.DoAn_Mobile.Adapters.PostAdapter;
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+//import com.google.firebase.firestore.CollectionReference;
+//import com.google.firebase.firestore.DocumentReference;
+//import com.google.firebase.firestore.DocumentSnapshot;
+//import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -81,25 +81,25 @@ public class HomeFragment extends Fragment {
 //
 //        });
 
-
-        CollectionReference feedReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("feed");
-        feedReference.get().addOnSuccessListener(feedSnapshots -> {
-            if (feedSnapshots.isEmpty()) {
-
-                return;
-            }
-            postAdapter.clearPosts();
-            for (DocumentSnapshot feedSnapshot : feedSnapshots) {
-                DocumentReference postReference = feedSnapshot.getDocumentReference("postReference");
-                boolean isVisited = Boolean.TRUE.equals(feedSnapshot.getBoolean("visited"));
-                assert postReference != null;
-                postReference.get().addOnSuccessListener(postSnapshot -> postAdapter.addPost(postSnapshot.toObject(Post.class)));
-            }
-        }).addOnFailureListener(e -> {
-
-            Log.e("Firestore Error", e.getMessage());
-
-        });
+//
+//        CollectionReference feedReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("feed");
+//        feedReference.get().addOnSuccessListener(feedSnapshots -> {
+//            if (feedSnapshots.isEmpty()) {
+//
+//                return;
+//            }
+//            postAdapter.clearPosts();
+//            for (DocumentSnapshot feedSnapshot : feedSnapshots) {
+//                DocumentReference postReference = feedSnapshot.getDocumentReference("postReference");
+//                boolean isVisited = Boolean.TRUE.equals(feedSnapshot.getBoolean("visited"));
+//                assert postReference != null;
+//                postReference.get().addOnSuccessListener(postSnapshot -> postAdapter.addPost(postSnapshot.toObject(Post.class)));
+//            }
+//        }).addOnFailureListener(e -> {
+//
+//            Log.e("Firestore Error", e.getMessage());
+//
+//        });
 
     }
 }

@@ -2,7 +2,6 @@ package com.DoAn_Mobile.Adapters;
 
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,13 +23,13 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
     private List<VideoInfo> videoList;
     private VideoView videoView;
     private ImageView playPauseIcon;
-    boolean isVideoPlaying = false;
     ProgressBar loadingProgressBar;
     String videoUrl;
     String videoDescription;
-
+    TextView tvDescription;
     SeekBar seekBar;
     Handler handler = new Handler();
+    private boolean isPaused = false;
 
     public WatchAdapter(List<VideoInfo> videoList) {
         this.videoList = videoList;
@@ -42,15 +41,15 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
     @NonNull
     @Override
     public WatchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_watch, parent,false);
-        return new WatchAdapter.WatchViewHolder(view);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_watch, parent, false);
+        WatchViewHolder viewHolder = new WatchViewHolder(view);
+        return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull WatchAdapter.WatchViewHolder holder, int position) {
         VideoInfo video = videoList.get(position);
-        holder.bind(position);
+        holder.bind(position, video);
     }
 
     @Override
@@ -59,14 +58,34 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
     }
 
     public class WatchViewHolder extends RecyclerView.ViewHolder{
+
         public WatchViewHolder(@NonNull View itemView) {
             super(itemView);
-            seekBar = itemView.findViewById(R.id.seekBar);
             loadingProgressBar = itemView.findViewById(R.id.loadingProgressBar);
-
             playPauseIcon = itemView.findViewById(R.id.playPauseIcon);
             videoView = itemView.findViewById(R.id.videoView);
             seekBar = itemView.findViewById(R.id.seekBar);
+            tvDescription = itemView.findViewById(R.id.tvDescription);
+
+        }
+        public void bind(int position, VideoInfo video) {
+            if (position >= 0 && position < videoList.size()) {
+                setupVideoView(position, video);
+            }
+        }
+    }
+
+
+    private void setupVideoView(int position, VideoInfo videoInfo) {
+
+        if (videoList != null && !videoList.isEmpty() && position >= 0 && position < videoList.size()) {
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            videoInfo = videoList.get(position);
+
+            videoDescription = videoInfo.getDescription();
+            tvDescription.setText(videoDescription);
+            videoUrl = videoInfo.getUrl();
+            videoView.setVideoURI(Uri.parse(videoUrl));
 
             videoView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -77,54 +96,43 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
                     return true;
                 }
             });
-        }
-        public void bind(int position) {
-            // Gọi setupVideoView từ phương thức này
-            setupVideoView(position);
-        }
 
+            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    loadingProgressBar.setVisibility(View.GONE);
+                    setupSeekBar();
+                    mp.setLooping(true);
+
+                    videoView.start();
+                    startUpdatingProgressBar();
+                    videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mediaPlayer) {
+                            playPauseIcon.setVisibility(View.GONE);
+                            mediaPlayer.start();
+                        }
+                    });
+                }
+            });
+        }
     }
     private void toggleVideoPlayback() {
-        if (videoView.isPlaying()) {
-            if (videoView.canPause()) {
-                videoView.pause();
-                playPauseIcon.setImageResource(R.drawable.ic_play);
-                playPauseIcon.setVisibility(View.VISIBLE);
-            }
-        } else {
+        if (isPaused) {
             videoView.start();
+        } else {
+            videoView.pause();
+        }
+        isPaused = !isPaused;
+        updatePlayPauseIcon();
+    }
+    private void updatePlayPauseIcon() {
+        if (isPaused) {
+            playPauseIcon.setVisibility(View.VISIBLE);
+        } else {
             playPauseIcon.setVisibility(View.GONE);
         }
-        isVideoPlaying = !isVideoPlaying;
     }
-    private void setupVideoView(int position) {
-        loadingProgressBar.setVisibility(View.VISIBLE);
-
-        VideoInfo videoInfo = videoList.get(position);
-
-        String videoUrl = videoInfo.getUrl();
-        videoView.setVideoURI(Uri.parse(videoUrl));
-
-
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                loadingProgressBar.setVisibility(View.GONE);
-                setupSeekBar();
-                mp.setLooping(true);
-                videoView.start();
-                startUpdatingProgressBar();
-                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {
-                        playPauseIcon.setVisibility(View.GONE);
-                        mediaPlayer.start();
-                    }
-                });
-            }
-        });
-    }
-
     private void setupSeekBar() {
         seekBar.setMax(videoView.getDuration());
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -142,7 +150,6 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
                 stopUpdatingProgressBar();
             }
         });
-
         videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -150,14 +157,12 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
                 return false;
             }
         });
-
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     videoView.seekTo(progress);
                 }
-
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -170,27 +175,17 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
         });
     }
     private void startUpdatingProgressBar() {
-        handler.postDelayed(new Runnable() {
+        videoView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (videoView.isPlaying()) {
                     int currentPosition = videoView.getCurrentPosition();
                     seekBar.setProgress(currentPosition);
-
                 }
-                handler.postDelayed(this, 100);
+                videoView.postDelayed(this, 100);
             }
         }, 100);
     }
-
-
-    private String formatTime(int millis) {
-        int seconds = millis / 1000;
-        int minutes = seconds / 60;
-        seconds = seconds % 60;
-        return String.format("%02d:%02d", minutes, seconds);
-    }
-
     private void stopUpdatingProgressBar() {
         handler.removeCallbacks(updateProgressBarTask);
     }
