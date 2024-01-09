@@ -79,16 +79,14 @@ public class ChatActivity extends AppCompatActivity {
                         }
 
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            switch (dc.getType()) {
-                                case ADDED:
-                                    Message message = dc.getDocument().toObject(Message.class);
-                                    messageList.add(message);
-                                    break;
+                            if (dc.getType() == DocumentChange.Type.ADDED) {
+                                Message message = dc.getDocument().toObject(Message.class);
+                                messageList.add(message);
                             }
                         }
 
                         chatAdapter.notifyDataSetChanged();
-                        recyclerViewChat.scrollToPosition(messageList.size() - 1); // Scroll to the bottom
+                        recyclerViewChat.scrollToPosition(messageList.size() - 1);
                     }
                 });
     }
