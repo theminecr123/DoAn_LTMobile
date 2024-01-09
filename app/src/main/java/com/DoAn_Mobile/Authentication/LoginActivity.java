@@ -268,7 +268,7 @@ public class LoginActivity extends AppCompatActivity {
                                     userUpdate.put("bio", documentSnapshot.getString("bio"));
                                     userUpdate.put("gender", documentSnapshot.getString("gender"));
                                     userUpdate.put("active", documentSnapshot.getBoolean("active"));
-                                    userUpdate.put("imgProfile", documentSnapshot.getString("imgProfile"));
+                                    userUpdate.put("profileImageUrl", documentSnapshot.getString("profileImageUrl"));
                                     userUpdate.put("name", documentSnapshot.getString("name"));
 
                                     usersRef.document(currentUser.getUid()).update(userUpdate);

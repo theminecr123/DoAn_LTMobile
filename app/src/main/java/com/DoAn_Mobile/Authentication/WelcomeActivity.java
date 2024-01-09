@@ -149,18 +149,20 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void saveImageUrlToDatabase(String imageUrl) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("users");
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("imgProfile", imageUrl);
+        DocumentReference userRef = db.collection("users").document(uid);
 
-        databaseRef.child(uid).updateChildren(updates)
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("profileImageUrl", imageUrl);
+
+        userRef.update(updates)
                 .addOnSuccessListener(aVoid -> {
                     startMainActivity();
                 })
                 .addOnFailureListener(e -> {
-
+                    // Handle errors
                 });
     }
+
 
     private void startMainActivity() {
         Intent newIntent = new Intent(WelcomeActivity.this, MainActivity.class);

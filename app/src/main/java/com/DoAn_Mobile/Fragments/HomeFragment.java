@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,8 +82,12 @@ public class HomeFragment extends Fragment {
 //        });
 
 
-        CollectionReference feedReference = FirebaseFirestore.getInstance().collection("Users").document(FirebaseAuth.getInstance().getUid()).collection("feed");
+        CollectionReference feedReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("feed");
         feedReference.get().addOnSuccessListener(feedSnapshots -> {
+            if (feedSnapshots.isEmpty()) {
+
+                return;
+            }
             postAdapter.clearPosts();
             for (DocumentSnapshot feedSnapshot : feedSnapshots) {
                 DocumentReference postReference = feedSnapshot.getDocumentReference("postReference");
@@ -90,6 +95,11 @@ public class HomeFragment extends Fragment {
                 assert postReference != null;
                 postReference.get().addOnSuccessListener(postSnapshot -> postAdapter.addPost(postSnapshot.toObject(Post.class)));
             }
+        }).addOnFailureListener(e -> {
+
+            Log.e("Firestore Error", e.getMessage());
+
         });
+
     }
 }
