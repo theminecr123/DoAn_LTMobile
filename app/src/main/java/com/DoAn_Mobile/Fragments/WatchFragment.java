@@ -24,27 +24,21 @@ public class WatchFragment extends Fragment {
     public WatchFragment() {
         // Required empty public constructor
     }
-
-    public static WatchFragment newInstance() {  // Xóa các tham số url và description
+    public static WatchFragment newInstance() {
         WatchFragment fragment = new WatchFragment();
         return fragment;
     }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_watch, container, false);
         ViewPager2 viewPager2 = view.findViewById(R.id.viewPager2);
 
-        List<VideoInfo> videoList = createVideoList();
-
         WatchAdapter adapter = new WatchAdapter(createVideoList());
         viewPager2.setAdapter(adapter);
-
         return view;
     }
 
@@ -52,11 +46,15 @@ public class WatchFragment extends Fragment {
 
         List<VideoInfo> videoList = new ArrayList<>();
         videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/414814228_340362632187643_8354208551586456545_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=XKbPt0JeFSYAX8w8u6m&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfCB6C0Yctf_IuesAjs9VjxzXJzqUNVPsS0H0yJtd9Qt-A&oe=65A196F5",  "Mô tả Video 1"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/369881772_1266211517416761_6939712292969977045_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=VyCglhwjVxgAX-2yU1T&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfDFPXTb4FfEddoluiZ1DbAn3YISMFHwbyR5i0t7TRZ3AQ&oe=65A200AF", "Mô tả Video 2"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-10.fna.fbcdn.net/v/t42.1790-2/10000000_305137215603116_7597645409816507625_n.mp4?_nc_cat=109&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=TY16TDqP8MsAX_2IPKO&_nc_rml=0&_nc_ht=scontent.fsgn2-10.fna&oh=00_AfB0DUrd7Nw-mGznhsfg1tue1Cg3j8qCcKkgvbn3J7qf8w&oe=65A09935", "Mô tả Video 3"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/416464061_755481743141667_2535886987224370643_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=JyZm_97JeIoAX_Xi3tO&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfBr2beGB1al4rRdL_EbFGBLe8xTMNdzHphP8o5nmzFbYQ&oe=65A205FE", "Mô tả Video 4"));
+        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/414814228_340362632187643_8354208551586456545_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=XKbPt0JeFSYAX8w8u6m&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfCB6C0Yctf_IuesAjs9VjxzXJzqUNVPsS0H0yJtd9Qt-A&oe=65A196F5",  "Mô tả Video 2"));
+
+        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/414814228_340362632187643_8354208551586456545_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=XKbPt0JeFSYAX8w8u6m&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfCB6C0Yctf_IuesAjs9VjxzXJzqUNVPsS0H0yJtd9Qt-A&oe=65A196F5",  "Mô tả Video 3"));
+        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/369881772_1266211517416761_6939712292969977045_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=VyCglhwjVxgAX-2yU1T&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfDFPXTb4FfEddoluiZ1DbAn3YISMFHwbyR5i0t7TRZ3AQ&oe=65A200AF", "Mô tả Video 4"));
+
+        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/417549238_1327544741239276_3574434797587833607_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=jyLnppt_fL8AX_8rP6a&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfBnbIJKsm1Kh4U7WBArG5HGrd6jb-yhdNY_iyjjAJvyyg&oe=65A281CC", "Mô tả Video 5"));
+        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/416464061_755481743141667_2535886987224370643_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=JyZm_97JeIoAX_Xi3tO&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfBr2beGB1al4rRdL_EbFGBLe8xTMNdzHphP8o5nmzFbYQ&oe=65A205FE", "Mô tả Video 6"));
+
         //videoList.add(new VideoInfo(" ", "Mô tả Video 3"));
         return videoList;
     }
-
 }

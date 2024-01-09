@@ -5,16 +5,10 @@ public class VideoInfo {
     private String title;
     private String description;
 
-    public VideoInfo(String url, String title, String description) {
-        this.url = url;
-        this.title = title;
-        this.description = description;
-    }
     public VideoInfo(String url, String description){
         this.url = url;
         this.description = description;
     }
-
     public String getUrl() {
         return url;
     }
