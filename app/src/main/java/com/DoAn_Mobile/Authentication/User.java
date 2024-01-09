@@ -8,8 +8,11 @@ import java.util.List;
 public class User {
     String id;
     String name;
+    String username;
     String email;
     String bio;
+    int post;
+    int follow;
     String profileImageUrl;
     String backgroundImageUrl;
     String onesignalPlayerId;
@@ -39,6 +42,8 @@ public class User {
         this.profileImageUrl = profileImageUrl;
         this.backgroundImageUrl = backgroundImageUrl;
         this.bio = "";
+        this.post = 0;
+        this.follow = 0;
         this.posts = new ArrayList<>();
         this.saved = new ArrayList<>();
         this.following = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.DoAn_Mobile.Fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,7 +10,10 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,17 +22,25 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.DoAn_Mobile.Activities.EditInfoActivity;
+import com.DoAn_Mobile.Activities.FriendActivity;
 import com.DoAn_Mobile.R;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileFragment extends Fragment {
 
@@ -36,27 +48,72 @@ public class ProfileFragment extends Fragment {
     private static final int EDIT_INFO_REQUEST_CODE = 100;
 
     private CircleImageView profileImage;
-    private TextView usernameTextView;
-    private TextView statusTextView;
-    private TextView followersTextView;
-    private TextView descriptionTextView;
-    private ViewPager2 viewpagerprofile;
+    private TextView tvUsername;
+    private TextView tvName;
+    private TextView post;
+    private TextView tvFollow;
+    private EditText edtBio;
     private Button editbutton;
     private FirebaseAuth mAuth;
 
+    private FirebaseFirestore db; // Firestore instance
+    private StorageReference storageRef; // Firebase Storage reference
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         profileImage = view.findViewById(R.id.profile_image);
-        usernameTextView = view.findViewById(R.id.username_text_view);
-        statusTextView = view.findViewById(R.id.status);
-        followersTextView = view.findViewById(R.id.followers);
-        descriptionTextView = view.findViewById(R.id.description);
-        viewpagerprofile = view.findViewById(R.id.viewpagerprofile);
+        tvName = view.findViewById(R.id.tvName);
+        tvUsername = view.findViewById(R.id.tvUsername);
+        post = view.findViewById(R.id.post);
+        tvFollow = view.findViewById(R.id.follow);
+        edtBio = view.findViewById(R.id.edtBio);
         editbutton = view.findViewById(R.id.editbutton);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference("uploads");
+
+        loadUserDataFromFirestore();
+
+        Button button3 = view.findViewById(R.id.btnFriend);
+
+        button3.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), FriendActivity.class);
+            startActivity(intent);
+        });
+
+        edtBio = view.findViewById(R.id.edtBio);
+        Button btnSaveBio = view.findViewById(R.id.btnSaveBio);
+
+        edtBio.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    btnSaveBio.setVisibility(View.VISIBLE);
+                } else {
+                    btnSaveBio.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        btnSaveBio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String newBio = edtBio.getText().toString();
+                DocumentReference userRef = db.collection("users").document(mAuth.getUid());
+
+                userRef.update("bio", newBio)
+                        .addOnSuccessListener(aVoid -> {
+                            edtBio.clearFocus();
+                            hideKeyboardFrom(getContext(), edtBio);
+                        })
+                        .addOnFailureListener(e -> {
+                        });
+
+                btnSaveBio.setVisibility(View.GONE);
+            }
+        });
 
         profileImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -74,24 +131,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String username = dataSnapshot.child("name").getValue(String.class);
-                    String status = dataSnapshot.child("status").getValue(String.class);
 
-                    usernameTextView.setText(username);
-                    statusTextView.setText(status);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Xử lý lỗi nếu có
-            }
-        });
 
         return view;
     }
@@ -103,25 +143,82 @@ public class ProfileFragment extends Fragment {
         startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
     }
 
+
+
+    private void loadUserDataFromFirestore() {
+        DocumentReference userRef = db.collection("users").document(mAuth.getUid());
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String name = documentSnapshot.getString("name");
+                String username = documentSnapshot.getString("username");
+                // Chuyển đổi giá trị int từ Firestore thành String
+                Long statusLong = documentSnapshot.getLong("post");
+                String status = statusLong != null ? statusLong.toString() : "0";
+
+                Long followLong = documentSnapshot.getLong("follow");
+                String follow = followLong != null ? followLong.toString() : "0";
+                String bio = documentSnapshot.getString("bio");
+                String imgAvatar = documentSnapshot.getString("profileImageUrl");
+
+                tvName.setText(name);
+                tvUsername.setText("@"+username);
+                post.setText(status + " Posts");
+                tvFollow.setText(follow + " Followers");
+                edtBio.setText(bio);
+
+                // Tải và hiển thị ảnh đại diện
+                if (imgAvatar != null && !imgAvatar.isEmpty()) {
+                    Glide.with(this).load(imgAvatar).into(profileImage);
+                }
+            }
+        }).addOnFailureListener(e -> {
+            // Xử lý lỗi nếu có
+        });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri selectedImageUri = data.getData();
+            profileImage.setImageURI(selectedImageUri); // Cập nhật UI trước khi tải lên
 
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), selectedImageUri);
-                profileImage.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            uploadImageToFirebase(selectedImageUri); // Gọi hàm tải ảnh lên Firebase
         } else if (requestCode == EDIT_INFO_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             String updatedName = data.getStringExtra("updatedName");
             String updatedGender = data.getStringExtra("updatedGender");
+            tvName.setText(updatedName);        }
+    }
 
-            usernameTextView.setText(updatedName);
+    private void uploadImageToFirebase(Uri imageUri) {
+        if (imageUri != null) {
+            StorageReference fileReference = storageRef.child("uploads/" + mAuth.getUid() + ".jpg");
 
+            fileReference.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(uri -> {
+                        String imageUrl = uri.toString();
+                        saveImageUrlToFirestore(imageUrl);
+                    }))
+                    .addOnFailureListener(e -> {
+                        // Handle errors here
+                    });
         }
+    }
+
+    private void saveImageUrlToFirestore(String imageUrl) {
+        DocumentReference userRef = db.collection("users").document(mAuth.getUid());
+
+        userRef.update("profileImageUrl", imageUrl)
+                .addOnSuccessListener(aVoid -> {
+                    // Thông báo cập nhật thành công
+                })
+                .addOnFailureListener(e -> {
+                    // Handle errors here
+                });
+    }
+    private void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

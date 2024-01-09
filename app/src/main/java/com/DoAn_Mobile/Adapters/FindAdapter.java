@@ -71,6 +71,11 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindViewHolder
         }
 
     }
+    public void removeUserAt(int position) {
+        if (position >= 0 && position < userList.size()) {
+            userList.remove(position);
+        }
+    }
 
     @Override
     public int getItemCount() {

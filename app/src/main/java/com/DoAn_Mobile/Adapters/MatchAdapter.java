@@ -77,4 +77,6 @@ public class MatchAdapter extends RecyclerView.Adapter<MatchAdapter.MatchViewHol
             imageViewUser = itemView.findViewById(R.id.imgAvatar);
         }
     }
+
+
 }

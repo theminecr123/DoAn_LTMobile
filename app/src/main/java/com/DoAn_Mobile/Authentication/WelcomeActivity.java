@@ -127,7 +127,8 @@ public class WelcomeActivity extends AppCompatActivity {
         DocumentReference usersRef = db.collection("users").document(uid);
 
         Map<String, Object> userUpdates = new HashMap<>();
-        userUpdates.put("name", binding.username.getText().toString());
+        userUpdates.put("name", binding.name.getText().toString());
+        userUpdates.put("username", binding.username.getText().toString());
         userUpdates.put("gender", binding.genderSpinner.getSelectedItem().toString());
         userUpdates.put("active", true);
 
@@ -190,20 +191,28 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     private boolean isUserDataValid() {
-
         String username = binding.username.getText().toString().trim();
+        String name = binding.name.getText().toString().trim();
         String gender = binding.genderSpinner.getSelectedItem().toString();
 
         if (username.isEmpty()) {
             binding.username.setError("Vui lòng nhập tên của bạn");
             return false;
-        }
-
-        if (gender.equals("Chọn giới tính")) {
-
+        } else if (!username.matches(USERNAME_PATTERN)) {
+            binding.username.setError("Username phải gồm 4 ký tự trở lên, không chứa khoảng trống và Ký tự đặc biệt.");
+            return false;
+        } else if (gender.equals("Chọn giới tính")) {
+            // Hiển thị lỗi hoặc thông báo liên quan đến giới tính
+            return false;
+        } else if (name.isEmpty()) {
+            // Hiển thị lỗi hoặc thông báo liên quan đến tên
             return false;
         }
 
         return true;
     }
+
+
+    private static final String USERNAME_PATTERN = "^[a-zA-Z0-9]{4,}$";
+
 }

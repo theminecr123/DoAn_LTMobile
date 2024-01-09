@@ -15,6 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DoAn_Mobile">
         <activity
+            android:name=".Activities.FriendActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.OtherUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.SearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.ChatActivity"
             android:exported="false" />
         <activity
@@ -37,7 +46,6 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-
             android:exported="false" />
         <activity
             android:name=".Authentication.LoginActivity"

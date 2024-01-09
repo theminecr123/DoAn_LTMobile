@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.DoAn_Mobile.Activities.SearchActivity;
 import com.DoAn_Mobile.Adapters.HomeAdapter;
 import com.DoAn_Mobile.Adapters.Model;
 import com.DoAn_Mobile.Adapters.Post;
@@ -55,6 +56,10 @@ public class HomeFragment extends Fragment {
                     intent = new Intent(requireActivity(), PostActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra("type", "text");
+                    startActivity(intent);
+                    break;
+                case R.id.nav_find:
+                    intent = new Intent(requireActivity(), SearchActivity.class);
                     startActivity(intent);
                     break;
 //                case R.id.nav_chat:

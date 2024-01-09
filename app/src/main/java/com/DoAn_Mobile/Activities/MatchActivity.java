@@ -6,12 +6,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.DoAn_Mobile.Adapters.MatchAdapter;
 import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.Models.MatchItem;
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -24,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 public class MatchActivity extends AppCompatActivity {
+    MatchAdapter adapter;
+    FirebaseFirestore db;
+    String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +37,10 @@ public class MatchActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.rclMatch);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MatchAdapter adapter = new MatchAdapter();
+        adapter = new MatchAdapter();
         recyclerView.setAdapter(adapter);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         adapter.setOnItemClickListener(matchItem -> {
@@ -45,56 +50,78 @@ public class MatchActivity extends AppCompatActivity {
             startActivity(chatIntent);
         });
 
-        db.collection("Matches").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot matchDocument : task.getResult()) {
-                    Map<String, Object> uids = matchDocument.getData();
-                    if (uids.containsKey(currentUserId)) {
 
-                        uids.remove(currentUserId);
-                        String matchedUserId = uids.keySet().iterator().next();
-
-                        if (!uids.keySet().isEmpty()) {
-                            // Truy vấn để lấy thông tin user
-                            db.collection("users").document(matchedUserId).get().addOnSuccessListener(userDocument -> {
-                                if (userDocument.exists()) {
-                                    User matchedUser = userDocument.toObject(User.class);
-
-                                    // Truy vấn để lấy last message từ sub-collection 'Messages'
-                                    matchDocument.getReference().collection("Messages").orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get().addOnSuccessListener(messagesSnapshot -> {
-                                        if (!messagesSnapshot.isEmpty()) {
-                                            // Lấy thông tin last message
-                                            DocumentSnapshot lastMessageDocument = messagesSnapshot.getDocuments().get(0);
-                                            String lastMessage = lastMessageDocument.getString("message");
-                                            Date timestamp = lastMessageDocument.getDate("timestamp");
-
-                                            MatchItem matchItem = new MatchItem();
-                                            matchItem.setUserId(matchedUserId);
-                                            matchItem.setUsername(matchedUser.getName());
-                                            matchItem.setLastMessage(lastMessage);
-                                            // Format timestamp như mong muốn
-                                            matchItem.setTimestamp(DateFormat.getDateTimeInstance().format(timestamp));
-                                            matchItem.setAvatarUrl(matchedUser.getProfileImageUrl());
-
-                                            // Thêm matchItem vào list và thông báo cho adapter
-                                            adapter.addMatchItem(matchItem);
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
-                                }
-                            }).addOnFailureListener(e -> {
-                                // Xử lý lỗi khi không lấy được thông tin người dùng
-                            });
+        db.collection("Matches")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot matchDocument : task.getResult()) {
+                            // Lấy giá trị của conversationId từ document
+                            String conversationId = matchDocument.getString("conversationId");
+                            if (conversationId != null) {
+                                // Bây giờ bạn có conversationId, tiếp tục truy vấn tin nhắn cuối cùng
+                                fetchLastMessageFromConversation(conversationId);
+                            } else {
+                                // Không tìm thấy conversationId trong document này
+                                Log.d("Firestore", "No conversationId found in Match document");
+                            }
                         }
+                    } else {
+                        Log.e("Firestore", "Error getting matches: ", task.getException());
                     }
-                }
-            } else {
-                // Xử lý lỗi khi không lấy được danh sách matches
-            }
-        });
-
+                });
 
 
 
     }
+    private void fetchLastMessageFromConversation(String conversationId) {
+        db.collection("Messages").document(conversationId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<Map<String, Object>> messages = (List<Map<String, Object>>) documentSnapshot.get("messages");
+                        if (messages != null && !messages.isEmpty()) {
+                            // Giả sử tin nhắn cuối cùng là tin nhắn mới nhất trong mảng
+                            Map<String, Object> lastMessageData = messages.get(messages.size() - 1);
+                            String lastMessage = (String) lastMessageData.get("message");
+                            com.google.firebase.Timestamp timestamp = (com.google.firebase.Timestamp) lastMessageData.get("timestamp");
+                            Date date = timestamp.toDate(); // Chuyển đổi Timestamp thành Date
+                            String senderId = (String) lastMessageData.get("senderId");
+                            String receiverId = (String) lastMessageData.get("receiverId");
+
+                            // Xác định người dùng khác không phải là người dùng hiện tại
+                            String otherUserId = !currentUserId.equals(senderId) ? senderId : receiverId;
+
+                            // Tiếp tục để lấy thông tin người dùng và cập nhật UI
+                            displayConversationInfo(otherUserId, lastMessage, date);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Error fetching messages: ", e));
+    }
+
+
+
+    private void displayConversationInfo(String otherUserId, String lastMessage, Date date) {
+        // Lấy thông tin người dùng từ 'users' collection và cập nhật UI
+        db.collection("users").document(otherUserId).get().addOnSuccessListener(userDocument -> {
+            if (userDocument.exists()) {
+                User otherUser = userDocument.toObject(User.class);
+                String formattedTimestamp = DateFormat.getDateTimeInstance().format(date);
+
+                MatchItem matchItem = new MatchItem();
+                matchItem.setUserId(otherUserId);
+                matchItem.setUsername(otherUser.getName());
+                matchItem.setLastMessage(lastMessage);
+                matchItem.setTimestamp(formattedTimestamp);
+                matchItem.setAvatarUrl(otherUser.getProfileImageUrl());
+
+                // Add matchItem to the adapter and notify the change
+                adapter.addMatchItem(matchItem);
+            }
+        }).addOnFailureListener(e -> Log.e("Firestore", "Error fetching user details: ", e));
+    }
+
+
+
 }
