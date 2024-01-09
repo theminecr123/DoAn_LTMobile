@@ -47,6 +47,9 @@ public class WelcomeActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        int imageResourceId = R.drawable.img_default; // ID của tài nguyên drawable
+        String packageName = getApplicationContext().getPackageName(); // Tên package của ứng dụng
+        imageUri = Uri.parse("android.resource://" + packageName + "/" + imageResourceId);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.gender_array,
@@ -109,6 +112,16 @@ public class WelcomeActivity extends AppCompatActivity {
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            binding.imgAvatar.setImageURI(imageUri);
+        }
+    }
+
     private void updateUserInfo() {
         String uid = mAuth.getCurrentUser().getUid();
         DocumentReference usersRef = db.collection("users").document(uid);

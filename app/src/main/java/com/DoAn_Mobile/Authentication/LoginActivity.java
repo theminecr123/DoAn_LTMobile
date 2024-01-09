@@ -212,8 +212,6 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
                             checkIfEmailExists(user.getEmail());
-                            updateUI(user);
-                            finish();
 
                         } else {
                             updateUI(null);
@@ -235,7 +233,6 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         FirebaseUser user = mAuth.getCurrentUser();
                         checkIfEmailExists(user.getEmail());
-                        updateUI(user);
                     }
                 } else {
                     Toast.makeText(LoginActivity.this, "Wrong Email or Password!", Toast.LENGTH_SHORT).show();
