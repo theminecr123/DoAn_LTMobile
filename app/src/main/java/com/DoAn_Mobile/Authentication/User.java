@@ -29,17 +29,9 @@ public class User {
 
     }
 
-    public User(String id, String email, String name, String profileImageUrl, String gender, String bio, Boolean isActive) {
-        this.id = id;
-        this.email = email;
-        this.bio = bio;
-        this.name = name;
-        this.profileImageUrl = profileImageUrl;
-        this.gender = gender;
-        this.isActive = isActive;
-    }
 
-    public User(String id, String name,  String email, String profileImageUrl, String backgroundImageUrl) {
+
+    public User(String id, String email, String name, String profileImageUrl, String gender, String bio, Boolean isActive) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -53,6 +45,10 @@ public class User {
         this.followers = new ArrayList<>();
         this.blockedAccounts = new ArrayList<>();
         this.isPrivate = false;
+        this.isActive = isActive;
+        this.gender = gender;
+
+
     }
 
     public String getOnesignalPlayerId() {

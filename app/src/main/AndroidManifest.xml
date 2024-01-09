@@ -2,9 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.DoAn_Mobile">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DoAn_Mobile">
         <activity
+            android:name=".Activities.ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.EditInfoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Adapters.PostActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.MatchActivity"
             android:exported="false" />
         <activity
             android:name=".Authentication.WelcomeActivity"
@@ -30,7 +40,6 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

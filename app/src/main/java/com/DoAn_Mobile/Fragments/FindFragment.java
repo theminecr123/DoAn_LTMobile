@@ -20,9 +20,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 
+import com.DoAn_Mobile.Activities.MatchActivity;
 import com.DoAn_Mobile.Adapters.FindAdapter;
 import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.R;
@@ -41,6 +43,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -95,6 +98,12 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
         viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance(); // Initialize Firestore
+
+        Button btnMatch = view.findViewById(R.id.btnMatch);
+        btnMatch.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), MatchActivity.class);
+            startActivity(intent);
+        });
 
         getDefaultLocationFromFirebase();
         setupLocationManagerAndListener();
@@ -364,20 +373,39 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
                 match.put(currentUserId, true);
                 match.put(likedUserId, true);
 
+                // Tạo một document mới cho cặp đôi này trong collection 'Matches'
                 DocumentReference matchRef = db.collection("Matches").document();
                 matchRef.set(match).addOnSuccessListener(aVoid -> {
                     // Logic after match is confirmed
-                    // openChat(currentUserId, likedUserId);
+
+                    // Tạo sub-collection 'Messages' cho cặp đôi
+                    Map<String, Object> firstMessage = new HashMap<>();
+                    firstMessage.put("senderId", currentUserId);
+                    firstMessage.put("receiverId", likedUserId);
+                    firstMessage.put("message", "Chúc mừng! Bạn đã được ghép đôi.");
+                    firstMessage.put("timestamp", FieldValue.serverTimestamp());
+
+                    // Thêm tin nhắn đầu tiên vào sub-collection 'Messages'
+                    matchRef.collection("Messages").add(firstMessage).addOnSuccessListener(aVoid1 -> {
+                        // Tin nhắn đã được thêm thành công
+                        // openChat(currentUserId, likedUserId); // Gọi phương thức để mở chat nếu cần
+                    }).addOnFailureListener(e -> {
+                        // Handle errors khi thêm tin nhắn
+                        Log.e("Firestore", "Error adding first message: ", e);
+                    });
+
+                    // openChat(currentUserId, likedUserId); // Gọi phương thức để mở chat nếu cần
                 }).addOnFailureListener(e -> {
-                    // Handle errors
+                    // Handle errors khi tạo match
                     Log.e("Firestore", "Error setting match: ", e);
                 });
             }
         }).addOnFailureListener(e -> {
-            // Handle errors
+            // Handle errors khi kiểm tra match
             Log.e("Firestore", "Error checking for match: ", e);
         });
     }
+
 
 
 }
