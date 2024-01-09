@@ -25,7 +25,7 @@ public class VpagerAdapter extends FragmentStateAdapter {
             case 0:
                 return new HomeFragment();
             case 1:
-                //return new WatchFragment();
+                return new WatchFragment();
             case 2:
                 return new FindFragment();
             case 3:
