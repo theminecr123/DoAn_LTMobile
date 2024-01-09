@@ -1,14 +1,35 @@
 package com.DoAn_Mobile.Models;
 
+import com.DoAn_Mobile.Authentication.User;
+
 public class VideoInfo {
+
+    String iduser;
     private String url;
-    private String title;
+
     private String description;
+
+
 
     public VideoInfo(String url, String description){
         this.url = url;
         this.description = description;
     }
+
+    public VideoInfo(String iduser, String url, String description) {
+        this.iduser = iduser;
+        this.url = url;
+        this.description = description;
+    }
+
+    public String getIduser() {
+        return iduser;
+    }
+
+    public void setIduser(String iduser) {
+        this.iduser = iduser;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -17,13 +38,7 @@ public class VideoInfo {
         this.url = url;
     }
 
-    public String getTitle() {
-        return title;
-    }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     public String getDescription() {
         return description;
