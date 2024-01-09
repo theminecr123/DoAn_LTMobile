@@ -46,6 +46,20 @@
                 android:textSize="30sp"
                 tools:layout_editor_absoluteX="0dp"
                 tools:layout_editor_absoluteY="82dp" />
+            <EditText
+                android:id="@+id/editNickName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/border_text"
+                android:hint="Biệt hiệu"
+                android:inputType="text"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="82dp" />
 
 
             <LinearLayout

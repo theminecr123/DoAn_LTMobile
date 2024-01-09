@@ -7,34 +7,34 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EditInfoActivity extends AppCompatActivity {
 
-    private EditText editName;
+    private EditText editName, editNickName;
     private Spinner spinner;
     private Button saveButton;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_info);
 
+        editNickName = findViewById(R.id.editNickName);
         editName = findViewById(R.id.editName);
         spinner = findViewById(R.id.spinner);
         saveButton = findViewById(R.id.button2);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
@@ -44,15 +44,18 @@ public class EditInfoActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String name = dataSnapshot.child("name").getValue(String.class);
-                    String gender = dataSnapshot.child("gender").getValue(String.class);
+        DocumentReference userRef = db.collection("users").document(mAuth.getUid());
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    String name = document.getString("name");
+                    String nickname = document.getString("nickname");
+                    String gender = document.getString("gender");
 
                     editName.setText(name);
+                    editNickName.setText(nickname);
+
                     if (gender != null) {
                         int genderPosition = getGenderPosition(gender);
                         if (genderPosition != -1) {
@@ -60,11 +63,8 @@ public class EditInfoActivity extends AppCompatActivity {
                         }
                     }
                 }
-            }
+            } else {
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Xử lý lỗi nếu có
             }
         });
 
@@ -72,13 +72,14 @@ public class EditInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name = editName.getText().toString();
+                String nickname = editNickName.getText().toString();
                 String gender = spinner.getSelectedItem().toString();
 
-                updateUserInfo(name, gender);
+                updateUserInfo(name, nickname, gender);
 
-                // Gửi kết quả trở lại cho Fragment cha
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("updatedName", name);
+                resultIntent.putExtra("updatedNickname", nickname);
                 resultIntent.putExtra("updatedGender", gender);
                 setResult(RESULT_OK, resultIntent);
 
@@ -101,10 +102,8 @@ public class EditInfoActivity extends AppCompatActivity {
         }
         return -1;
     }
-
-    private void updateUserInfo(String name, String gender) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
-        userRef.child("name").setValue(name);
-        userRef.child("gender").setValue(gender);
+    private void updateUserInfo(String name, String nickname, String gender) {
+        DocumentReference userRef = db.collection("users").document(mAuth.getUid());
+        userRef.update("name", name, "nickname", nickname, "gender", gender);
     }
 }

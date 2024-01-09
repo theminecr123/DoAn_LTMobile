@@ -1,0 +1,48 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đổi mật khẩu"
+        android:textSize="40sp"
+        android:gravity="center"
+        android:textStyle="bold">
+    </TextView>
+    <androidx.cardview.widget.CardView
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical">
+         <EditText
+             android:id="@+id/edtemail"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginBottom="16dp"
+             android:hint="Nhập email"
+             android:inputType="text"
+             android:paddingStart="12dp"
+             android:paddingTop="10dp"
+             android:paddingEnd="12dp"/>
+
+         <Button
+             android:layout_marginTop="20dp"
+             android:id="@+id/btnSend"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginBottom="16dp"
+             android:background="@drawable/button"
+             android:text="Gửi" />
+
+     </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

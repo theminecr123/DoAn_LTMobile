@@ -20,11 +20,12 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.DoAn_Mobile.Activities.EditInfoActivity;
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -43,6 +44,9 @@ public class ProfileFragment extends Fragment {
     private ViewPager2 viewpagerprofile;
     private Button editbutton;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
 
     @Nullable
     @Override
@@ -57,6 +61,9 @@ public class ProfileFragment extends Fragment {
         editbutton = view.findViewById(R.id.editbutton);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         profileImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -74,22 +81,14 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String username = dataSnapshot.child("name").getValue(String.class);
-                    String status = dataSnapshot.child("status").getValue(String.class);
+        DocumentReference userRef = db.collection("users").document(mAuth.getUid());
+        userRef.addSnapshotListener((documentSnapshot, e) -> {
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                String username = documentSnapshot.getString("name");
+                String status = documentSnapshot.getString("status");
 
-                    usernameTextView.setText(username);
-                    statusTextView.setText(status);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Xử lý lỗi nếu có
+                usernameTextView.setText(username);
+                statusTextView.setText(status);
             }
         });
 
@@ -106,13 +105,14 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri selectedImageUri = data.getData();
-
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), selectedImageUri);
                 profileImage.setImageBitmap(bitmap);
+
+                uploadImage(selectedImageUri);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -122,6 +122,41 @@ public class ProfileFragment extends Fragment {
 
             usernameTextView.setText(updatedName);
 
+            updateUserInfo(updatedName, updatedGender);
         }
+    }
+
+    private void uploadImage(Uri selectedImageUri) {
+        StorageReference imageRef = storageReference.child("profile_images/" + mAuth.getUid());
+
+        imageRef.putFile(selectedImageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        updateProfileImageURL(uri.toString());
+                    });
+                })
+                .addOnFailureListener(e -> {
+
+                });
+    }
+
+    private void updateProfileImageURL(String imageURL) {
+        db.collection("users").document(mAuth.getUid())
+                .update("profileImageURL", imageURL)
+                .addOnSuccessListener(aVoid -> {
+
+                })
+                .addOnFailureListener(e -> {
+
+                });
+    }
+
+    private void updateUserInfo(String name, String gender) {
+        db.collection("users").document(mAuth.getUid())
+                .update("name", name, "gender", gender)
+                .addOnSuccessListener(aVoid -> {
+                })
+                .addOnFailureListener(e -> {
+                });
     }
 }
