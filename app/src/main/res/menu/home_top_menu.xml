@@ -17,6 +17,11 @@
         </menu>
     </item>
     <item
+        android:id="@+id/nav_find"
+        android:icon="@drawable/icon_find"
+        android:title=""
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/nav_chat"
         android:icon="@drawable/ic_message"
         android:title=""

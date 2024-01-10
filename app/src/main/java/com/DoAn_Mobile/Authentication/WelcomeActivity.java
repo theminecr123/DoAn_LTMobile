@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
@@ -35,25 +34,22 @@ import java.util.Map;
 public class WelcomeActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private FirebaseFirestore db; // Firestore instance
     private ActivityWelcomeBinding binding;
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityWelcomeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        int imageResourceId = R.drawable.img_default;
-        String packageName = getApplicationContext().getPackageName();
+        int imageResourceId = R.drawable.img_default; // ID của tài nguyên drawable
+        String packageName = getApplicationContext().getPackageName(); // Tên package của ứng dụng
         imageUri = Uri.parse("android.resource://" + packageName + "/" + imageResourceId);
-
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.gender_array,
@@ -62,28 +58,18 @@ public class WelcomeActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.genderSpinner.setAdapter(adapter);
 
+
         loadUserDataFromFirestore();
 
         binding.btnChangeAVT.setOnClickListener(v -> openFileChooser());
 
         binding.btnNext.setOnClickListener(v -> {
+
             if (isUserDataValid()) {
                 updateUserInfo();
             }
         });
-        binding.imgAvatar.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                openImageChooser();
-                return true;
-            }
-        });
     }
-    private void openImageChooser() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
-    }
-
     private void loadUserDataFromFirestore() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DocumentReference userRef = db.collection("users").document(uid);
@@ -91,11 +77,9 @@ public class WelcomeActivity extends AppCompatActivity {
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String username = documentSnapshot.getString("name");
-                String nickname = documentSnapshot.getString("nickname");
                 String gender = documentSnapshot.getString("gender");
 
                 binding.username.setText(username);
-                binding.nickname.setText(nickname);
 
                 if (gender != null) {
                     int genderPosition = getGenderPosition(gender);
@@ -108,7 +92,6 @@ public class WelcomeActivity extends AppCompatActivity {
             // Handle errors
         });
     }
-
     private int getGenderPosition(String gender) {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
@@ -123,14 +106,12 @@ public class WelcomeActivity extends AppCompatActivity {
         }
         return -1;
     }
-
     private void openFileChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -146,8 +127,8 @@ public class WelcomeActivity extends AppCompatActivity {
         DocumentReference usersRef = db.collection("users").document(uid);
 
         Map<String, Object> userUpdates = new HashMap<>();
-        userUpdates.put("name", binding.username.getText().toString());
-        userUpdates.put("nickname", binding.nickname.getText().toString());
+        userUpdates.put("name", binding.name.getText().toString());
+        userUpdates.put("username", binding.username.getText().toString());
         userUpdates.put("gender", binding.genderSpinner.getSelectedItem().toString());
         userUpdates.put("active", true);
 
@@ -160,10 +141,9 @@ public class WelcomeActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
-
+                    // Handle errors
                 });
     }
-
     private void uploadImageToFirebase(Uri imageUri) {
         if (imageUri != null) {
             StorageReference fileReference = FirebaseStorage.getInstance().getReference("uploads").child(System.currentTimeMillis() + getFileExtension(imageUri));
@@ -197,6 +177,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 });
     }
 
+
     private void startMainActivity() {
         Intent newIntent = new Intent(WelcomeActivity.this, MainActivity.class);
         startActivity(newIntent);
@@ -211,22 +192,27 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private boolean isUserDataValid() {
         String username = binding.username.getText().toString().trim();
-        String nickname = binding.nickname.getText().toString().trim();
+        String name = binding.name.getText().toString().trim();
         String gender = binding.genderSpinner.getSelectedItem().toString();
 
         if (username.isEmpty()) {
             binding.username.setError("Vui lòng nhập tên của bạn");
             return false;
-        }
-
-        if (nickname.isEmpty()) {
-            binding.nickname.setError("Vui lòng nhập nickname của bạn");
+        } else if (!username.matches(USERNAME_PATTERN)) {
+            binding.username.setError("Username phải gồm 4 ký tự trở lên, không chứa khoảng trống và Ký tự đặc biệt.");
             return false;
-        }
-        if (gender.equals("Chọn giới tính")) {
+        } else if (gender.equals("Chọn giới tính")) {
+            // Hiển thị lỗi hoặc thông báo liên quan đến giới tính
+            return false;
+        } else if (name.isEmpty()) {
+            // Hiển thị lỗi hoặc thông báo liên quan đến tên
             return false;
         }
 
         return true;
     }
+
+
+    private static final String USERNAME_PATTERN = "^[a-zA-Z0-9]{4,}$";
+
 }

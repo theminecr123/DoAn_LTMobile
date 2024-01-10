@@ -8,8 +8,11 @@ import java.util.List;
 public class User {
     String id;
     String name;
+    String username;
     String email;
     String bio;
+    int post;
+    int follow;
     String profileImageUrl;
     String backgroundImageUrl;
     String onesignalPlayerId;
@@ -29,17 +32,9 @@ public class User {
 
     }
 
-    public User(String id, String email, String name, String profileImageUrl, String gender, String bio, Boolean isActive) {
-        this.id = id;
-        this.email = email;
-        this.bio = bio;
-        this.name = name;
-        this.profileImageUrl = profileImageUrl;
-        this.gender = gender;
-        this.isActive = isActive;
-    }
 
-    public User(String id, String name,  String email, String profileImageUrl, String backgroundImageUrl) {
+
+    public User(String id, String email, String name, String profileImageUrl, String gender, String bio, Boolean isActive) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -47,12 +42,18 @@ public class User {
         this.profileImageUrl = profileImageUrl;
         this.backgroundImageUrl = backgroundImageUrl;
         this.bio = "";
+        this.post = 0;
+        this.follow = 0;
         this.posts = new ArrayList<>();
         this.saved = new ArrayList<>();
         this.following = new ArrayList<>();
         this.followers = new ArrayList<>();
         this.blockedAccounts = new ArrayList<>();
         this.isPrivate = false;
+        this.isActive = isActive;
+        this.gender = gender;
+
+
     }
 
     public String getOnesignalPlayerId() {
@@ -137,7 +138,6 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
-
     public void setBio(String bio) {
         this.bio = bio;
     }
@@ -188,5 +188,13 @@ public class User {
 
     public void setBlockedAccounts(List<DocumentReference> blockedAccounts) {
         this.blockedAccounts = blockedAccounts;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

@@ -96,7 +96,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         }
 
         holder.checkIfLiked();
-        holder.checkIfSaved();
+//        holder.checkIfSaved(); // nếu không comment thì sẽ bị lỗi load liên tục
 
         DatabaseReference commentsReference = FirebaseDatabase.getInstance().getReference().child("comments").child(post.getPostid());
         commentsReference.addValueEventListener(new ValueEventListener() {

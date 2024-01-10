@@ -20,11 +20,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 
+import com.DoAn_Mobile.Activities.MatchActivity;
 import com.DoAn_Mobile.Adapters.FindAdapter;
 import com.DoAn_Mobile.Authentication.User;
+import com.DoAn_Mobile.Models.Message;
 import com.DoAn_Mobile.R;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
@@ -33,6 +36,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,16 +45,21 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class FindFragment extends Fragment implements FindAdapter.UserInteractionListener {
 
@@ -95,6 +104,12 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
         viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance(); // Initialize Firestore
+
+        Button btnMatch = view.findViewById(R.id.btnMatch);
+        btnMatch.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), MatchActivity.class);
+            startActivity(intent);
+        });
 
         getDefaultLocationFromFirebase();
         setupLocationManagerAndListener();
@@ -173,38 +188,46 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
 
     //Phân trang 10 người 1 lần
     private void fetchUsersAndUpdateViewPager() {
-        Query query = db.collection("users")
-                // Assuming you have a field to order users, replace 'userId' with your field name
-                .orderBy("id")
-                .startAfter(currentPageStart)
-                .limit(PAGE_SIZE);
+        // Lấy ID của người dùng hiện tại
+        String currentUserId = mAuth.getUid();
 
-        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
-            if (!queryDocumentSnapshots.isEmpty()) {
+        // Truy xuất danh sách likes và dislikes
+        Task<DocumentSnapshot> likesTask = db.collection("Likes").document(currentUserId).get();
+        Task<DocumentSnapshot> dislikesTask = db.collection("Dislikes").document(currentUserId).get();
+
+        // Chờ cả hai truy vấn hoàn thành
+        Tasks.whenAllComplete(likesTask, dislikesTask).addOnCompleteListener(tasks -> {
+            Set<String> excludedUserIds = new HashSet<>();
+            if (likesTask.isSuccessful() && likesTask.getResult().exists()) {
+                excludedUserIds.addAll(likesTask.getResult().getData().keySet());
+            }
+            if (dislikesTask.isSuccessful() && dislikesTask.getResult().exists()) {
+                excludedUserIds.addAll(dislikesTask.getResult().getData().keySet());
+            }
+
+            // Bây giờ truy xuất và lọc người dùng từ Firestore
+            Query query = db.collection("users")
+                    .orderBy("id")
+                    .startAfter(currentPageStart)
+                    .limit(PAGE_SIZE);
+
+            query.get().addOnSuccessListener(queryDocumentSnapshots -> {
                 List<User> newUserList = new ArrayList<>();
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                     User user = documentSnapshot.toObject(User.class);
-                    if (user != null && user.getLocation() != null) {
-                        int distance = calculateDistance(currentUserLatitude, currentUserLongitude,
-                                user.getLocation().getLatitude(), user.getLocation().getLongitude());
-
-                        // Add the user if the distance is less than or equal to 100 km
-                        if (distance <= 100000) {
-                            newUserList.add(user);
-                        }
+                    if (user != null && user.getLocation() != null && !excludedUserIds.contains(user.getId())) {
+                        newUserList.add(user);
                     }
                 }
-
                 updateAdapterData(newUserList);
-                // Update currentPageStart based on the last document fetched
-                DocumentSnapshot lastVisible = queryDocumentSnapshots.getDocuments()
-                        .get(queryDocumentSnapshots.size() - 1);
-            }
-        }).addOnFailureListener(e -> {
-            // Handle errors
-            Log.e("Firestore", "Error getting user data: ", e);
+
+                // ... (phần còn lại của code)
+            }).addOnFailureListener(e -> {
+                Log.e("Firestore", "Error getting user data: ", e);
+            });
         });
     }
+
 
 
     private void updateAdapterData(List<User> newUserList) {
@@ -215,7 +238,7 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
 
             for (User user : newUserList) {
                 if (user.getLocation() != null && !Objects.equals(user.getId(), mAuth.getUid())) {
-                    existingUsers.add(user); // Chỉ thêm người dùng có khoảng cách > 1000 mét
+                    existingUsers.add(user);
                 }
             }
 
@@ -283,11 +306,15 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
     @Override
     public void onLikeClicked(User user) {
         // Xử lý khi người dùng nhấn 'like'
-        adapter = (FindAdapter) viewPager.getAdapter();
+        FindAdapter adapter = (FindAdapter) viewPager.getAdapter();
         if (adapter != null) {
             int currentItem = viewPager.getCurrentItem();
-            if (currentItem < adapter.getItemCount() - 1) {
-                viewPager.setCurrentItem(currentItem + 1, true);
+            adapter.removeUserAt(currentItem); // Xóa user khỏi adapter
+            adapter.notifyItemRemoved(currentItem); // Thông báo cho adapter biết một item đã được xóa
+
+            // Di chuyển đến item tiếp theo nếu còn item trong danh sách
+            if (currentItem < adapter.getItemCount()) {
+                viewPager.setCurrentItem(currentItem, true);
             }
         } else {
             Log.e("FindFragment", "Adapter is null");
@@ -301,13 +328,19 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
         FindAdapter adapter = (FindAdapter) viewPager.getAdapter();
         if (adapter != null) {
             int currentItem = viewPager.getCurrentItem();
-            if (currentItem < adapter.getItemCount() - 1) {
-                viewPager.setCurrentItem(currentItem + 1, true);
+            adapter.removeUserAt(currentItem); // Xóa user khỏi adapter
+            adapter.notifyItemRemoved(currentItem); // Thông báo cho adapter biết một item đã được xóa
+
+            // Di chuyển đến item tiếp theo nếu còn item trong danh sách
+            if (currentItem < adapter.getItemCount()) {
+                viewPager.setCurrentItem(currentItem, true);
             }
         } else {
             Log.e("FindFragment", "Adapter is null");
         }
+        sendDisLike(mAuth.getUid(),user.getId());
     }
+
 
     private static final int REQUEST_CHECK_SETTINGS = 1001; // Mã yêu cầu định nghĩa bởi bạn
 
@@ -352,31 +385,71 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
             Log.e("Firestore", "Error sending like: ", e);
         });
     }
+    private void sendDisLike(String currentUserId, String disLikedUserId) {
+        DocumentReference likesRef = db.collection("Dislikes").document(currentUserId);
+
+        Map<String, Object> like = new HashMap<>();
+        like.put(disLikedUserId, true);
+
+        likesRef.set(like, SetOptions.merge()).addOnSuccessListener(aVoid -> {
+            checkForMatch(currentUserId, disLikedUserId);
+        }).addOnFailureListener(e -> {
+            // Handle errors
+            Log.e("Firestore", "Error sending like: ", e);
+        });
+    }
 
     private void checkForMatch(String currentUserId, String likedUserId) {
         DocumentReference likedUserRef = db.collection("Likes").document(likedUserId);
 
         likedUserRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists() && documentSnapshot.getBoolean(currentUserId) != null) {
-                // Match found
-                Map<String, Object> match = new HashMap<>();
-                match.put(currentUserId, true);
-                match.put(likedUserId, true);
 
+
+                String conversationId = getConversationId(currentUserId, likedUserId);
+                Message welcomeMessage = new Message(currentUserId, likedUserId, "Chúc mừng! Bạn đã được ghép đôi.", new Date());
+
+// Match found
+                Map<String, Object> match = new HashMap<>();
+                match.put("conversationId", conversationId);
+
+                // Tạo một document mới cho cặp đôi này trong collection 'Matches'
                 DocumentReference matchRef = db.collection("Matches").document();
                 matchRef.set(match).addOnSuccessListener(aVoid -> {
-                    // Logic after match is confirmed
-                    // openChat(currentUserId, likedUserId);
+                    db.collection("Messages").document(conversationId)
+                            .update("messages", FieldValue.arrayUnion(welcomeMessage))
+
+                            .addOnFailureListener(e -> {
+                                // Xử lý trường hợp document cuộc hội thoại chưa tồn tại
+                                if (e.getMessage().contains("No document to update")) {
+                                    // Tạo document mới cho cuộc hội thoại
+                                    Map<String, Object> conversationData = new HashMap<>();
+                                    conversationData.put("messages", Arrays.asList(welcomeMessage));
+                                    db.collection("Messages").document(conversationId)
+                                            .set(conversationData);
+                                } else {
+                                    Log.e("Firestore", "Error adding welcome message: ", e);
+                                }
+                            });
+
+
+                    // openChat(currentUserId, likedUserId); // Gọi phương thức để mở chat nếu cần
                 }).addOnFailureListener(e -> {
-                    // Handle errors
+                    // Handle errors khi tạo match
                     Log.e("Firestore", "Error setting match: ", e);
                 });
             }
         }).addOnFailureListener(e -> {
-            // Handle errors
             Log.e("Firestore", "Error checking for match: ", e);
         });
     }
+
+
+    private String getConversationId(String userId1, String userId2) {
+        // Sắp xếp userId1 và userId2 theo thứ tự bảng chữ cái và nối chúng lại với nhau
+        return userId1.compareTo(userId2) < 0 ? userId1 + "_" + userId2 : userId2 + "_" + userId1;
+    }
+
 
 
 }

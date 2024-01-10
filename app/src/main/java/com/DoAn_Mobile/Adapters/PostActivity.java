@@ -36,7 +36,9 @@ import com.DoAn_Mobile.DateFormatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PostActivity extends AppCompatActivity {
@@ -140,7 +142,7 @@ public class PostActivity extends AppCompatActivity {
             }
             if (photoFile != null) {
                 filePath = FileProvider.getUriForFile(this,
-                        "com.jamburger.kitter.fileprovider",
+                        "com.DoAn_Mobile.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, filePath);
                 fromCameraResultLauncher.launch(Intent.createChooser(takePictureIntent, "Select Picture"));
@@ -149,6 +151,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     private void publishPost() {
+
         if (filePath != null) {
             ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
@@ -158,7 +161,7 @@ public class PostActivity extends AppCompatActivity {
             StorageReference ref = storageReference.child("Posts/" + postId);
 
             ref.putFile(filePath).addOnSuccessListener(snapshot -> {
-                Toast.makeText(this, "Image Uploaded!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
 
                 storageReference.child("Posts").child(postId).getDownloadUrl().addOnSuccessListener(uri -> {
                     Post post = new Post(user.getUid(), postId, uri.toString(), caption.getText().toString());
@@ -168,36 +171,54 @@ public class PostActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         startMainActivity();
                     });
-                    updateUserPostsAndFeed(postRef);
+                    updateUserPostsAndFeed(postRef, false); // Gửi tham số false để chỉ định rằng đây là một bài đăng ảnh
                 });
             }).addOnFailureListener(e -> {
                 progressDialog.dismiss();
-                Toast.makeText(this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }).addOnProgressListener(taskSnapshot -> {
-                double progress =
-                        ((100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount()));
+                double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
                 progressDialog.setMessage("Uploaded " + (int) progress + "%");
             });
         } else {
-            String postId = DateFormatter.getCurrentTime();
-            Post post = new Post(user.getUid(), postId, "", "");
-            post.setKitt(caption.getText().toString());
-            DocumentReference postRef = db.collection("Posts").document(postId);
-            postRef.set(post).addOnCompleteListener(task -> {
-                updateUserPostsAndFeed(postRef); // Di chuyển phương thức này vào trong callback của set()
-                startMainActivity();
-            });
-            updateUserPostsAndFeed(postRef);
+            String postCaption = caption.getText().toString();
+            boolean containsBannedWords = false;
+
+            // Danh sách các từ bị cấm
+            List<String> bannedWords = Arrays.asList("ABC", "XYZ", "DEF");
+
+            for (String bannedWord : bannedWords) {
+                if (postCaption.contains(bannedWord)) {
+                    containsBannedWords = true;
+                    break;
+                }
+            }
+
+            if (containsBannedWords) {
+                Toast.makeText(this, "Từ ngữ không phù hợp", Toast.LENGTH_SHORT).show();
+            } else {
+                String postId = DateFormatter.getCurrentTime();
+                Post post = new Post(user.getUid(), postId, "", "");
+                post.setKitt(postCaption);
+                DocumentReference postRef = db.collection("Posts").document(postId);
+                postRef.set(post).addOnCompleteListener(task -> {
+                    updateUserPostsAndFeed(postRef, true);
+                    startMainActivity();
+                });
+            }
         }
     }
 
-    void updateUserPostsAndFeed(DocumentReference postReference) {
+    void updateUserPostsAndFeed(DocumentReference postReference, boolean isTextPost) {
         DocumentReference userReference = db.collection("users").document(user.getUid());
         userReference.update("posts", FieldValue.arrayUnion(postReference));
 
         Map<String, Object> map = new HashMap<>();
         map.put("postReference", postReference);
         map.put("visited", false);
+        if (!isTextPost) {
+            map.put("isTextPost", false); // Thêm thuộc tính "isTextPost" với giá trị false để xác định đây là một bài đăng ảnh
+        }
         userReference.collection("feed").document(postReference.getId()).set(map);
         userReference.get().addOnSuccessListener(userSnapshot -> {
             User me = userSnapshot.toObject(User.class);
