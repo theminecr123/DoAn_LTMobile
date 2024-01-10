@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -42,20 +44,24 @@ public class AddvideoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addvideo);
-
         FirebaseStorage storage = FirebaseStorage.getInstance();
-         storageRef = storage.getReference();
+        storageRef = storage.getReference();
         initView();
         firebaseAuth = FirebaseAuth.getInstance();
         initControll();
         db = FirebaseFirestore.getInstance();
         videoRef = db.collection("videos");
+
+        videoPreview.setVisibility(View.GONE);
         btnPickVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openVideoPicker();
             }
         });
+    }
+    private void showVideoPreview() {
+        videoPreview.setVisibility(View.VISIBLE);
     }
     private void openVideoPicker() {
         Intent intent = new Intent();
@@ -74,32 +80,7 @@ public class AddvideoActivity extends AppCompatActivity {
             exoPlayer = null;
         }
     }
-    private void addVideoToFirestore(String userId, String videoUrl, String videoDescription, Uri videoUri) {
-        VideoInfo videoInfo = new VideoInfo(userId, videoUrl, videoDescription);
-        // Nếu videoUri không null, tức là người dùng đã chọn video từ thiết bị
-        if (videoUri != null) {
-            String fileName = getFileName(videoUri);
-            StorageReference videoStorageRef = storageRef.child("videos/" + fileName);
-            // Upload video lên Firebase Storage
-            videoStorageRef.putFile(videoUri)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        // Lấy link tải về của video
-                        videoStorageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                            // Lưu link vào đối tượng VideoInfo
-                            videoInfo.setUrl(uri.toString());
-                            // Thêm dữ liệu lên FirebaseFirestore
-                            addVideoToFirestore(userId, videoInfo);
-                        });
-                    })
-                    .addOnFailureListener(e -> {
-                        // Xử lý khi upload video thất bại
-                        Toast.makeText(AddvideoActivity.this, "Upload video thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        } else {
-            // Nếu videoUri là null, tức là người dùng nhập URL
-            addVideoToFirestore(userId, videoInfo);
-        }
-    }
+
     private void initializePlayer(Uri videoUri) {
         // Tạo một đối tượng SimpleExoPlayer
         exoPlayer = new SimpleExoPlayer.Builder(this).build();
@@ -123,6 +104,8 @@ public class AddvideoActivity extends AppCompatActivity {
             // Hiển thị videoPreview bằng ExoPlayer
             initializePlayer(videoUri);
             Toast.makeText(this, "Selected Video: " + getFileName(videoUri), Toast.LENGTH_SHORT).show();
+            showVideoPreview();
+            url.setVisibility(View.GONE);
         }
     }
     private String getFileName(Uri uri) {
@@ -168,13 +151,10 @@ public class AddvideoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (firebaseAuth != null) {
                     currentUser = firebaseAuth.getCurrentUser();
-                }
-                if (currentUser != null) {
+                }if (currentUser != null) {
                     String userId = currentUser.getUid();
-
                         String videoUrl = url.getText().toString();
                         if (!videoUrl.isEmpty()) {
-                            String videoDescription = noidung.getText().toString();
                             isUsingUrl = true;
                         } else {
                             isUsingUrl = false;
@@ -184,33 +164,55 @@ public class AddvideoActivity extends AppCompatActivity {
             }
         });
     }
+
     private void checkUserChoice(String userId) {
+        String videoDescription = noidung.getText().toString();
         if (isUsingUrl) {
-            // Nếu sử dụng URL, lấy dữ liệu từ trường nhập URL và mô phỏng việc chọn video từ thiết bị
             String videoUrl = url.getText().toString();
-            String videoDescription = noidung.getText().toString();
             addVideoToFirestore(userId, videoUrl, videoDescription, null);
         } else if (videoUri != null) {
-            // Nếu không sử dụng URL và có videoUri, tức là người dùng đã chọn một video từ thiết bị
-            String videoDescription = noidung.getText().toString();
             addVideoToFirestore(userId, "", videoDescription, videoUri);
         } else {
-            // Ngược lại, thông báo cho người dùng chọn video hoặc nhập URL
             Toast.makeText(this, "Vui lòng chọn một video hoặc nhập URL trước khi thêm", Toast.LENGTH_SHORT).show();
         }
     }
-    private void addVideoToFirestore(String userId, VideoInfo videoInfo) {
+    private void addVideoToFirestore(String userId, String videoUrl, String videoDescription, Uri videoUri) {
+        VideoInfo videoInfo = new VideoInfo(userId, videoUrl, videoDescription);
+        if (videoUri != null) {
+            uploadVideoToStorage(userId, videoInfo, videoUri);
+        } else {
+            saveVideoToFirestore(userId, videoInfo);
+        }
+    }
+    private void saveVideoToFirestore(String userId, VideoInfo videoInfo) {
         videoRef.add(videoInfo)
                 .addOnSuccessListener(documentReference -> {
-                    // Xử lý khi thêm dữ liệu thành công
                     Toast.makeText(AddvideoActivity.this, "Thêm video thành công", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    // Xử lý khi thêm dữ liệu thất bại
                     Toast.makeText(AddvideoActivity.this, "Thêm video thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+    private void uploadVideoToStorage(String userId, VideoInfo videoInfo, Uri videoUri) {
+        String fileName = getFileName(videoUri);
+        StorageReference videoStorageRef = storageRef.child("videos/" + fileName);
+        // Upload video lên Firebase Storage
+        videoStorageRef.putFile(videoUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    // Lấy link tải về của video
+                    videoStorageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        // Lưu link vào đối tượng VideoInfo
+                        videoInfo.setUrl(uri.toString());
+                        // Thêm dữ liệu lên FirebaseFirestore
+                        saveVideoToFirestore(userId, videoInfo);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(AddvideoActivity.this, "Upload video thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void initView() {
         url = findViewById(R.id.add_url);
         noidung = findViewById(R.id.add_nd);
@@ -218,6 +220,25 @@ public class AddvideoActivity extends AppCompatActivity {
         huy = findViewById(R.id.add_huy);
         btnPickVideo = findViewById(R.id.btn_pick_video);
         videoPreview = findViewById(R.id.video_preview);
+        EditText url = findViewById(R.id.add_url);
+        Button btnPickVideo = findViewById(R.id.btn_pick_video);
+        url.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.length() > 0) {
+                    btnPickVideo.setEnabled(false);
+                } else {
+                    btnPickVideo.setEnabled(true);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
     }
 }

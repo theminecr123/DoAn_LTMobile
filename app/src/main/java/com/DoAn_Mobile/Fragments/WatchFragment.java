@@ -2,9 +2,14 @@ package com.DoAn_Mobile.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,20 +19,25 @@ import com.DoAn_Mobile.Activities.AddvideoActivity;
 import com.DoAn_Mobile.Adapters.WatchAdapter;
 import com.DoAn_Mobile.Models.VideoInfo;
 import com.DoAn_Mobile.R;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link WatchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class WatchFragment extends Fragment {
+    private List<VideoInfo> videoList;
+    private WatchAdapter adapter;
+    private ViewPager2 viewPager2;
+    private CollectionReference videoRef;
+    FirebaseFirestore db;
     Button themvd;
-
-    public WatchFragment() {
-        // Required empty public constructor
-    }
+    public WatchFragment() {}
     public static WatchFragment newInstance() {
         WatchFragment fragment = new WatchFragment();
         return fragment;
@@ -36,15 +46,16 @@ public class WatchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_watch, container, false);
-        ViewPager2 viewPager2 = view.findViewById(R.id.viewPager2);
-
-        WatchAdapter adapter = new WatchAdapter(createVideoList());
-        viewPager2.setAdapter(adapter);
-
+        viewPager2 = view.findViewById(R.id.viewPager2);
         themvd = view.findViewById(R.id.themvd);
+
+        db = FirebaseFirestore.getInstance();
+        videoRef = db.collection("videos");
+        loadVideoData();
 
         themvd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,23 +64,42 @@ public class WatchFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                // Tự động phát video khi chuyển sang trang mới
+                adapter.playVideo(position, videoList.get(position));
+            }
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    // Trạng thái idle tức là ngừng lướt
+                    // Kiểm tra nếu đang lướt lên, thì bắt đầu lại video từ đầu
+                    if (viewPager2.getCurrentItem() == 0) {
+                        adapter.restartVideo();
+                    }
+                }
+            }
+        });
 
         return view;
     }
-
-    private List<VideoInfo> createVideoList() {
-
-        List<VideoInfo> videoList = new ArrayList<>();
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/414814228_340362632187643_8354208551586456545_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=XKbPt0JeFSYAX8w8u6m&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfCB6C0Yctf_IuesAjs9VjxzXJzqUNVPsS0H0yJtd9Qt-A&oe=65A196F5",  "Mô tả Video 1"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/414814228_340362632187643_8354208551586456545_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=XKbPt0JeFSYAX8w8u6m&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfCB6C0Yctf_IuesAjs9VjxzXJzqUNVPsS0H0yJtd9Qt-A&oe=65A196F5",  "Mô tả Video 2"));
-
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/414814228_340362632187643_8354208551586456545_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=XKbPt0JeFSYAX8w8u6m&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfCB6C0Yctf_IuesAjs9VjxzXJzqUNVPsS0H0yJtd9Qt-A&oe=65A196F5",  "Mô tả Video 3"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/369881772_1266211517416761_6939712292969977045_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=VyCglhwjVxgAX-2yU1T&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfDFPXTb4FfEddoluiZ1DbAn3YISMFHwbyR5i0t7TRZ3AQ&oe=65A200AF", "Mô tả Video 4"));
-
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/417549238_1327544741239276_3574434797587833607_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=jyLnppt_fL8AX_8rP6a&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfBnbIJKsm1Kh4U7WBArG5HGrd6jb-yhdNY_iyjjAJvyyg&oe=65A281CC", "Mô tả Video 5"));
-        videoList.add(new VideoInfo("https://scontent.fsgn2-7.fna.fbcdn.net/v/t42.1790-2/416464061_755481743141667_2535886987224370643_n.mp4?_nc_cat=108&ccb=1-7&_nc_sid=55d0d3&efg=eyJ2ZW5jb2RlX3RhZyI6InN2ZV9zZCJ9&_nc_ohc=JyZm_97JeIoAX_Xi3tO&_nc_rml=0&_nc_ht=scontent.fsgn2-7.fna&oh=00_AfBr2beGB1al4rRdL_EbFGBLe8xTMNdzHphP8o5nmzFbYQ&oe=65A205FE", "Mô tả Video 6"));
-
-        //videoList.add(new VideoInfo(" ", "Mô tả Video 3"));
-        return videoList;
+    private void loadVideoData() {
+        videoList = new ArrayList<>();
+        videoRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String videoUrl = document.getString("url");
+                    String videoDescription = document.getString("description");
+                    videoList.add(new VideoInfo(videoUrl, videoDescription));
+                }
+                adapter = new WatchAdapter(videoList); // Sử dụng constructor chính xác ở đây
+                viewPager2.setAdapter(adapter);
+            } else {
+                Log.e("WatchFragment", "Error fetching videos", task.getException());
+            }
+        });
     }
 }
