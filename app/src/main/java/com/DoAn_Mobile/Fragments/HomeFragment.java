@@ -15,11 +15,13 @@ import android.view.ViewGroup;
 
 import com.DoAn_Mobile.Activities.FriendChatActivity;
 import com.DoAn_Mobile.Activities.SearchActivity;
+import com.DoAn_Mobile.Adapters.ChangePasswordActivity;
 import com.DoAn_Mobile.Adapters.HomeAdapter;
 import com.DoAn_Mobile.Adapters.Model;
 import com.DoAn_Mobile.Adapters.Post;
 import com.DoAn_Mobile.Adapters.PostActivity;
 import com.DoAn_Mobile.Adapters.PostAdapter;
+import com.DoAn_Mobile.Authentication.LoginActivity;
 import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -69,6 +71,17 @@ public class HomeFragment extends Fragment {
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     break;
+                case R.id.nav_change_password:
+                    intent = new Intent(requireActivity(), ChangePasswordActivity.class);
+                    startActivity(intent);
+                    break;
+                case R.id.action_logout:
+                    FirebaseAuth.getInstance().signOut();
+                    Intent logoutIntent = new Intent(requireActivity(), LoginActivity.class);
+                    logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(logoutIntent);
+                    break;
+
             }
             return true;
         });

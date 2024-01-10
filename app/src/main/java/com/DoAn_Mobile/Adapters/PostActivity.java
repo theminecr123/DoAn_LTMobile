@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PostActivity extends AppCompatActivity {
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageView imageView;
     TextView caption;
     Uri filePath = null;
@@ -101,6 +103,7 @@ public class PostActivity extends AppCompatActivity {
         } else {
             TextInputLayout captionLayout = findViewById(R.id.layout_caption);
             captionLayout.setHint("Enter text content");
+            captionLayout.setHint("Nhập nội dung");
         }
     }
 
@@ -154,14 +157,16 @@ public class PostActivity extends AppCompatActivity {
 
         if (filePath != null) {
             ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Uploading...");
+            //progressDialog.setTitle("Uploading...");
+            progressDialog.setTitle("Đang tải lên...");
             progressDialog.show();
 
             String postId = DateFormatter.getCurrentTime();
             StorageReference ref = storageReference.child("Posts/" + postId);
 
             ref.putFile(filePath).addOnSuccessListener(snapshot -> {
-                Toast.makeText(this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Tải lên thành công!", Toast.LENGTH_SHORT).show();
 
                 storageReference.child("Posts").child(postId).getDownloadUrl().addOnSuccessListener(uri -> {
                     Post post = new Post(user.getUid(), postId, uri.toString(), caption.getText().toString());
@@ -178,7 +183,8 @@ public class PostActivity extends AppCompatActivity {
                 Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }).addOnProgressListener(taskSnapshot -> {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                progressDialog.setMessage("Uploaded " + (int) progress + "%");
+                //progressDialog.setMessage("Uploaded " + (int) progress + "%");
+                progressDialog.setMessage("Đang tải lên " + (int) progress + "%");
             });
         } else {
             String postCaption = caption.getText().toString();
@@ -252,11 +258,30 @@ public class PostActivity extends AppCompatActivity {
         else findViewById(R.id.post_parent).setVisibility(View.INVISIBLE);
     }
 
+//    public void selectFromCamera() {
+//        takePicture();
+//    }
+
     public void selectFromCamera() {
-        takePicture();
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
     }
 
     public void selectFromGallery() {
         selectPicture();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            // Xử lý ảnh đã chụp từ camera ở đây
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            imageView.setImageBitmap(imageBitmap);
+        }
     }
 }
