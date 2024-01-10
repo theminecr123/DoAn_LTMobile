@@ -46,17 +46,19 @@
             android:id="@+id/video_preview"
             android:layout_gravity="center"
             android:layout_marginTop="5dp"
+
             android:layout_width="300dp"
             android:layout_height="350dp"/>
 
         <Button
             android:id="@+id/btn_pick_video"
+            android:layout_gravity="center"
             android:text="Chọn video từ máy"
             android:textSize="18sp"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="60dp"
             android:layout_marginRight="60dp"
-            android:layout_width="match_parent"
+            android:layout_width="260dp"
             android:layout_height="wrap_content"/>
 
         <LinearLayout
