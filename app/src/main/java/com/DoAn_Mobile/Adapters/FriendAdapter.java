@@ -50,7 +50,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User friend = friendList.get(position);
-        holder.tvUsername.setText(friend.getUsername());
+        holder.tvName.setText(friend.getName());
         Glide.with(holder.imgAvatar.getContext()).load(friend.getProfileImageUrl()).into(holder.imgAvatar);
     }
 
@@ -60,12 +60,12 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView tvUsername;
+        TextView tvName;
         ImageView imgAvatar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvUsername = itemView.findViewById(R.id.tvName);
+            tvName = itemView.findViewById(R.id.tvName);
             imgAvatar = itemView.findViewById(R.id.imgAvatar);
             itemView.setOnClickListener(this);
         }
