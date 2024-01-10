@@ -24,17 +24,19 @@ import com.DoAn_Mobile.Activities.FriendActivity;
 import com.DoAn_Mobile.Activities.FriendChatActivity;
 import com.DoAn_Mobile.Activities.FriendRequestActivity;
 import com.DoAn_Mobile.Adapters.MyPostAdapter;
-import com.DoAn_Mobile.Adapters.PostAdapter;
 import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.Models.Post;
 import com.DoAn_Mobile.R;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -135,10 +137,10 @@ public class ProfileFragment extends Fragment {
             }
         });
         RecyclerView myPostRecyclerView = view.findViewById(R.id.myPost);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
-        myPostRecyclerView.setLayoutManager(gridLayoutManager);
+        //GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        //myPostRecyclerView.setLayoutManager(gridLayoutManager);
         postAdapter = new MyPostAdapter();
-        myPostRecyclerView.setAdapter(postAdapter);  // Ensure that you set the adapter to your RecyclerView
+        myPostRecyclerView.setAdapter(postAdapter); // Ensure that you set the adapter to your RecyclerView
 
         loadUserPosts(); // Call this after initializing the adapter
         return view;
@@ -231,32 +233,44 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserPosts() {
-        DocumentReference userRef = db.collection("users").document(mAuth.getUid());
-        userRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                List<DocumentReference> postRefs = documentSnapshot.toObject(User.class).getPosts();
-                loadPostsFromRefs(postRefs);
+        CollectionReference feedCollection = db.collection("users").document(mAuth.getUid()).collection("feed");
+
+        feedCollection.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<DocumentReference> postRefs = new ArrayList<>();
+            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                postRefs.add(document.getReference());
             }
+            loadPostsFromRefs(postRefs);
         }).addOnFailureListener(e -> {
             // Handle errors here
         });
     }
 
     private void loadPostsFromRefs(List<DocumentReference> postRefs) {
+        List<Post> posts = new ArrayList<>();
+
         for (DocumentReference postRef : postRefs) {
-            postRef.get().addOnSuccessListener(postSnapshot -> {
+            String postId = postRef.getId();
+            db.collection("Posts").document(postId).get().addOnSuccessListener(postSnapshot -> {
                 if (postSnapshot.exists()) {
                     Post post = postSnapshot.toObject(Post.class);
                     // Check if creatorID matches currentID
-                    if (post != null && mAuth.getUid().equals(post.getCreator())) {
-                        // This post is created by the current user, you can add it to your adapter
-                        postAdapter.addPost(post);
-                        postAdapter.notifyDataSetChanged();
+                    if (post != null && postId.equals(post.getPostid())) {
+                        posts.add(post);
                     }
+                }
+
+                if (posts.size() == postRefs.size()) {
+                    // All posts have been processed, update the adapter
+                    postAdapter.setPosts(posts);
+                    postAdapter.notifyDataSetChanged();
                 }
             }).addOnFailureListener(e -> {
                 // Handle errors here
             });
         }
     }
+
+
+
 }

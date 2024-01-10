@@ -1,7 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
     <item
+        android:id="@+id/nav_post"
         android:icon="@drawable/ic_new_post"
         android:title=""
         app:showAsAction="always">
@@ -9,21 +11,42 @@
             <item
                 android:id="@+id/nav_post_image"
                 android:icon="@drawable/ic_image"
-                android:title="Picture" />
+                android:title="Chọn Ảnh" />
             <item
                 android:id="@+id/nav_post_text"
                 android:icon="@drawable/ic_text"
-                android:title="Text" />
+                android:title="Văn Bản" />
         </menu>
     </item>
+
     <item
         android:id="@+id/nav_find"
         android:icon="@drawable/icon_find"
         android:title=""
         app:showAsAction="ifRoom" />
+
     <item
-        android:id="@+id/nav_chat"
-        android:icon="@drawable/ic_message"
-        android:title=""
-        app:showAsAction="ifRoom" />
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Cài đặt"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/nav_chat"
+                android:icon="@drawable/ic_message"
+                android:title="Chat"
+                app:showAsAction="always" />
+            <item
+                android:id="@+id/nav_change_password"
+                android:icon="@drawable/ic_change_password"
+                android:orderInCategory="100"
+                android:title="Đổi mật khẩu"
+                app:showAsAction="always" />
+            <item
+                android:id="@+id/action_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="Đăng xuất"
+                app:showAsAction="always"/>
+        </menu>
+    </item>
 </menu>

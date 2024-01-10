@@ -1,50 +1,33 @@
 {
   "project_info": {
-    "project_number": "417529420498",
-    "firebase_url": "https://doan-mobile-default-rtdb.firebaseio.com",
-    "project_id": "doan-mobile",
-    "storage_bucket": "doan-mobile.appspot.com"
+    "project_number": "116206179545",
+    "project_id": "backup-doanmobile",
+    "storage_bucket": "backup-doanmobile.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:417529420498:android:c2a139989be2bec08eeb0b",
+        "mobilesdk_app_id": "1:116206179545:android:34ce7901d3c21257479ac8",
         "android_client_info": {
           "package_name": "com.DoAn_Mobile"
         }
       },
       "oauth_client": [
         {
-          "client_id": "417529420498-ntf801dqubes3n1fedcomj6ptntn8s8o.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.DoAn_Mobile",
-            "certificate_hash": "1dffebed4ecadb99ebc1f313852b89a4f0f38c01"
-          }
-        },
-        {
-          "client_id": "417529420498-pgp3advnclbq70ulhbdvbsgqk02fm703.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.DoAn_Mobile",
-            "certificate_hash": "f394ba2181df687392537a88b479b86e645669ca"
-          }
-        },
-        {
-          "client_id": "417529420498-puu4vmkfdv4uri1mrnrag2c8nf5nvhh8.apps.googleusercontent.com",
+          "client_id": "116206179545-2v143ei4uttue7ju8dtfe7l4s7q0fv04.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDJ96jGbShFqNjUJKzRSnayHs9Ui49uOuM"
+          "current_key": "AIzaSyAq2TzMD3AcO4O31kWt1Mr9HxZknWKchPc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "417529420498-puu4vmkfdv4uri1mrnrag2c8nf5nvhh8.apps.googleusercontent.com",
+              "client_id": "116206179545-2v143ei4uttue7ju8dtfe7l4s7q0fv04.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

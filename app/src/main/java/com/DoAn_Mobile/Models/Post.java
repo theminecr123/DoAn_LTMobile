@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Post {
+    private boolean visited;
     String creator, postid, imageUrl, caption, kitt;
     List<DocumentReference> likes;
 
@@ -18,6 +19,13 @@ public class Post {
         this.kitt = "";
     }
 
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
     public String getKitt() {
         return kitt;
     }
