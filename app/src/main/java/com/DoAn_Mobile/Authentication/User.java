@@ -33,9 +33,10 @@ public class User {
 
 
 
-    public User(String id, String email, String name, String profileImageUrl, String gender, String bio, Boolean isActive) {
+    public User(String id, String email, String profileImageUrl, String gender, String bio, Boolean isActive) {
         this.id = id;
-        this.name = name;
+        this.name = "";
+        this.username ="";
         this.email = email;
         this.onesignalPlayerId = "";
         this.profileImageUrl = profileImageUrl;
