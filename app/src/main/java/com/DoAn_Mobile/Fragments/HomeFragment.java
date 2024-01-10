@@ -18,9 +18,6 @@ import com.DoAn_Mobile.Models.Post;
 import com.DoAn_Mobile.Activities.PostActivity;
 import com.DoAn_Mobile.Adapters.ChangePasswordActivity;
 import com.DoAn_Mobile.Adapters.HomeAdapter;
-import com.DoAn_Mobile.Adapters.Model;
-import com.DoAn_Mobile.Adapters.Post;
-import com.DoAn_Mobile.Adapters.PostActivity;
 import com.DoAn_Mobile.Adapters.PostAdapter;
 import com.DoAn_Mobile.Authentication.LoginActivity;
 import com.DoAn_Mobile.Authentication.User;
@@ -37,6 +34,7 @@ public class HomeFragment extends Fragment {
     RecyclerView recyclerViewPosts;
     PostAdapter postAdapter;
     Toolbar toolbar;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

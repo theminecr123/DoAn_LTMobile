@@ -23,6 +23,7 @@ import androidx.core.content.FileProvider;
 import com.DoAn_Mobile.MainActivity;
 import com.DoAn_Mobile.Models.Post;
 import com.bumptech.glide.Glide;
+import com.example.filterbadwords.FilterBadwords;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,6 +53,8 @@ public class PostActivity extends AppCompatActivity {
     FirebaseFirestore db;
     FirebaseUser user;
     String currentPhotoPath;
+    FilterBadwords filterWords;
+
     ActivityResultLauncher<Intent> fromGalleryResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK) {
             Intent data = result.getData();
@@ -154,59 +157,57 @@ public class PostActivity extends AppCompatActivity {
         }
     }
 
+    public void initializeFilterWords() {
+        try {
+            filterWords = new FilterBadwords(); // Initialize the FilterWords object
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the IOException appropriately
+        }    }
     private void publishPost() {
+        if (filterWords == null) {
+            initializeFilterWords();
+        }
 
-        if (filePath != null) {
-            ProgressDialog progressDialog = new ProgressDialog(this);
-            //progressDialog.setTitle("Uploading...");
-            progressDialog.setTitle("Đang tải lên...");
-            progressDialog.show();
-
-            String postId = DateFormatter.getCurrentTime();
-            StorageReference ref = storageReference.child("Posts/" + postId);
-
-            ref.putFile(filePath).addOnSuccessListener(snapshot -> {
-                //Toast.makeText(this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
-                Toast.makeText(this, "Tải lên thành công!", Toast.LENGTH_SHORT).show();
-
-                storageReference.child("Posts").child(postId).getDownloadUrl().addOnSuccessListener(uri -> {
-                    Post post = new Post(user.getUid(), postId, uri.toString(), caption.getText().toString());
-                    DocumentReference postRef = db.collection("Posts").document(postId);
-
-                    postRef.set(post).addOnCompleteListener(task -> {
-                        progressDialog.dismiss();
-                        startMainActivity();
-                    });
-                    updateUserPostsAndFeed(postRef, false); // Gửi tham số false để chỉ định rằng đây là một bài đăng ảnh
-                });
-            }).addOnFailureListener(e -> {
-                progressDialog.dismiss();
-                Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }).addOnProgressListener(taskSnapshot -> {
-                double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                //progressDialog.setMessage("Uploaded " + (int) progress + "%");
-                progressDialog.setMessage("Đang tải lên " + (int) progress + "%");
-            });
-        } else {
-            String postCaption = caption.getText().toString();
-            boolean containsBannedWords = false;
-
-            // Danh sách các từ bị cấm
-            List<String> bannedWords = Arrays.asList("ABC", "XYZ", "DEF");
-
-            for (String bannedWord : bannedWords) {
-                if (postCaption.contains(bannedWord)) {
-                    containsBannedWords = true;
-                    break;
-                }
-            }
-
-            if (containsBannedWords) {
+        String postCaption = caption.getText().toString();
+        boolean isBad = filterWords.containsBadWords(postCaption);
+        if (isBad) {
                 Toast.makeText(this, "Từ ngữ không phù hợp", Toast.LENGTH_SHORT).show();
+        }else {
+            if (filePath != null) {
+                ProgressDialog progressDialog = new ProgressDialog(this);
+                //progressDialog.setTitle("Uploading...");
+                progressDialog.setTitle("Đang tải lên...");
+                progressDialog.show();
+
+                String postId = DateFormatter.getCurrentTime();
+                StorageReference ref = storageReference.child("Posts/" + postId);
+
+                ref.putFile(filePath).addOnSuccessListener(snapshot -> {
+                    //Toast.makeText(this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Tải lên thành công!", Toast.LENGTH_SHORT).show();
+
+                    storageReference.child("Posts").child(postId).getDownloadUrl().addOnSuccessListener(uri -> {
+                        Post post = new Post(user.getUid(), postId, uri.toString(), caption.getText().toString());
+                        DocumentReference postRef = db.collection("Posts").document(postId);
+
+                        postRef.set(post).addOnCompleteListener(task -> {
+                            progressDialog.dismiss();
+                            startMainActivity();
+                        });
+                        updateUserPostsAndFeed(postRef, false); // Gửi tham số false để chỉ định rằng đây là một bài đăng ảnh
+                    });
+                }).addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }).addOnProgressListener(taskSnapshot -> {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                    //progressDialog.setMessage("Uploaded " + (int) progress + "%");
+                    progressDialog.setMessage("Đang tải lên " + (int) progress + "%");
+                });
             } else {
+
                 String postId = DateFormatter.getCurrentTime();
                 Post post = new Post(user.getUid(), postId, "", "");
-                post.setKitt(postCaption);
                 DocumentReference postRef = db.collection("Posts").document(postId);
                 postRef.set(post).addOnCompleteListener(task -> {
                     updateUserPostsAndFeed(postRef, true);
@@ -214,6 +215,8 @@ public class PostActivity extends AppCompatActivity {
                 });
             }
         }
+
+
     }
 
     void updateUserPostsAndFeed(DocumentReference postReference, boolean isTextPost) {
@@ -285,4 +288,5 @@ public class PostActivity extends AppCompatActivity {
             imageView.setImageBitmap(imageBitmap);
         }
     }
+
 }
