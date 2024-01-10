@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.DoAn_Mobile.Models.Post;
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,8 +27,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.DoAn_Mobile.R;
-//import com.DoAn_Mobile.OtherProfileActivity;
-import com.DoAn_Mobile.Models.Post;
 import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.DateFormatter;
 

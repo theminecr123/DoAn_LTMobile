@@ -225,6 +225,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
+                            assert user != null;
                             checkIfEmailExists(user.getEmail());
 
                         } else {
@@ -278,7 +279,7 @@ public class LoginActivity extends AppCompatActivity {
                                     userUpdate.put("email", documentSnapshot.getString("email"));
                                     userUpdate.put("bio", documentSnapshot.getString("bio"));
                                     userUpdate.put("gender", documentSnapshot.getString("gender"));
-                                    userUpdate.put("isActive", documentSnapshot.getBoolean("isActive"));
+                                    userUpdate.put("active", documentSnapshot.getBoolean("active"));
                                     userUpdate.put("profileImageUrl", documentSnapshot.getString("profileImageUrl"));
                                     userUpdate.put("name", documentSnapshot.getString("name"));
                                     userUpdate.put("username", documentSnapshot.getString("username"));
@@ -289,7 +290,7 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             } else {
                                 // Email chưa tồn tại trong cơ sở dữ liệu
-                                User users = new User(currentUser.getUid(), currentUser.getEmail(), "", "Male");
+                                User users = new User(currentUser.getUid(), currentUser.getEmail(), "", "Male", false);
                                 usersRef.document(currentUser.getUid()).set(users)
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override

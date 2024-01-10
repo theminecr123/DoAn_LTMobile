@@ -15,8 +15,7 @@ public class User {
     int follow;
     String profileImageUrl;
     String onesignalPlayerId;
-    boolean isPrivate;
-    Boolean isActive;
+    Boolean active;
     String gender;
 
     List<DocumentReference> posts;
@@ -30,17 +29,16 @@ public class User {
     public User() {
 
     }
-
-
-
-    public User(String id, String email, String profileImageUrl, String gender) {
+    public User(String id, String email, String profileImageUrl, String gender, Boolean active) {
         this.id = id;
         this.name = "";
         this.username ="";
         this.email = email;
         this.onesignalPlayerId = "";
         this.profileImageUrl = profileImageUrl;
-        this.bio = "";
+        this.bio = "123";
+        this.active = active;
+
         this.post = 0;
         this.follow = 0;
         this.posts = new ArrayList<>();
@@ -48,20 +46,11 @@ public class User {
         this.following = new ArrayList<>();
         this.followers = new ArrayList<>();
         this.blockedAccounts = new ArrayList<>();
-        this.isPrivate = false;
-        this.isActive = false;
         this.gender = gender;
 
 
     }
 
-    public String getOnesignalPlayerId() {
-        return onesignalPlayerId;
-    }
-
-    public void setOnesignalPlayerId(String onesignalPlayerId) {
-        this.onesignalPlayerId = onesignalPlayerId;
-    }
 
     public List<DocumentReference> getFollowing() {
         return following;
@@ -87,9 +76,6 @@ public class User {
         return id;
     }
 
-    public boolean isPrivate() {
-        return isPrivate;
-    }
 
     public String getName() {
         return name;
@@ -142,18 +128,15 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
-
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
-    }
-
     public Boolean getActive() {
-        return isActive;
+        return active;
     }
 
     public void setActive(Boolean active) {
-        isActive = active;
+        active = active;
     }
+
+
 
     public String getGender() {
         return gender;

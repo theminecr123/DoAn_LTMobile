@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -45,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 
 public class PostActivity extends AppCompatActivity {
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
     ImageView imageView;
     TextView caption;
     Uri filePath = null;
@@ -53,6 +51,7 @@ public class PostActivity extends AppCompatActivity {
     FirebaseFirestore db;
     FirebaseUser user;
     String currentPhotoPath;
+
     FilterBadwords filterWords;
 
     ActivityResultLauncher<Intent> fromGalleryResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -156,22 +155,21 @@ public class PostActivity extends AppCompatActivity {
             }
         }
     }
-
     public void initializeFilterWords() {
         try {
             filterWords = new FilterBadwords(); // Initialize the FilterWords object
         } catch (IOException e) {
             e.printStackTrace(); // Handle the IOException appropriately
-        }    }
+        }
+    }
     private void publishPost() {
+        String postCaption = caption.getText().toString();
         if (filterWords == null) {
             initializeFilterWords();
         }
-
-        String postCaption = caption.getText().toString();
         boolean isBad = filterWords.containsBadWords(postCaption);
         if (isBad) {
-                Toast.makeText(this, "Từ ngữ không phù hợp", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Từ ngữ không phù hợp", Toast.LENGTH_SHORT).show();
         }else {
             if (filePath != null) {
                 ProgressDialog progressDialog = new ProgressDialog(this);
@@ -208,6 +206,7 @@ public class PostActivity extends AppCompatActivity {
 
                 String postId = DateFormatter.getCurrentTime();
                 Post post = new Post(user.getUid(), postId, "", "");
+                post.setKitt(postCaption);
                 DocumentReference postRef = db.collection("Posts").document(postId);
                 postRef.set(post).addOnCompleteListener(task -> {
                     updateUserPostsAndFeed(postRef, true);
@@ -262,31 +261,11 @@ public class PostActivity extends AppCompatActivity {
         else findViewById(R.id.post_parent).setVisibility(View.INVISIBLE);
     }
 
-//    public void selectFromCamera() {
-//        takePicture();
-//    }
-
     public void selectFromCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
+        takePicture();
     }
 
     public void selectFromGallery() {
         selectPicture();
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            // Xử lý ảnh đã chụp từ camera ở đây
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            imageView.setImageBitmap(imageBitmap);
-        }
-    }
-
 }
