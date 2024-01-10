@@ -200,7 +200,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    private static final int RC_SIGN_IN = 40;
+    private static final int RC_SIGN_IN = 9008;
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -289,7 +289,7 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             } else {
                                 // Email chưa tồn tại trong cơ sở dữ liệu
-                                User users = new User(currentUser.getUid(), currentUser.getEmail(), "", "Male","", false);
+                                User users = new User(currentUser.getUid(), currentUser.getEmail(), "", "Male");
                                 usersRef.document(currentUser.getUid()).set(users)
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override

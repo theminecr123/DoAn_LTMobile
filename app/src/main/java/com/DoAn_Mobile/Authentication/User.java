@@ -33,7 +33,7 @@ public class User {
 
 
 
-    public User(String id, String email, String profileImageUrl, String gender, String bio, Boolean isActive) {
+    public User(String id, String email, String profileImageUrl, String gender) {
         this.id = id;
         this.name = "";
         this.username ="";
@@ -49,7 +49,7 @@ public class User {
         this.followers = new ArrayList<>();
         this.blockedAccounts = new ArrayList<>();
         this.isPrivate = false;
-        this.isActive = isActive;
+        this.isActive = false;
         this.gender = gender;
 
 

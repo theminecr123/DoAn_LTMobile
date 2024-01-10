@@ -59,22 +59,6 @@
             android:paddingTop="10dp"
             android:paddingEnd="12dp"
             android:textSize="20dp" />
-        <EditText
-            android:id="@+id/nickname"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="50dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/border_text"
-            android:ems="10"
-            android:hint="Nickname"
-            android:inputType="textEmailAddress"
-            android:paddingStart="12dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="12dp"
-            android:textSize="20dp" />
 
         <EditText
             android:id="@+id/name"
@@ -123,8 +107,8 @@
 
     <Button
         android:id="@+id/btnNext"
-        android:layout_width="150dp"
-        android:layout_height="17dp"
+        android:layout_width="125dp"
+        android:layout_height="49dp"
         android:layout_gravity="end"
         android:layout_marginTop="20dp"
         android:background="@drawable/button"
