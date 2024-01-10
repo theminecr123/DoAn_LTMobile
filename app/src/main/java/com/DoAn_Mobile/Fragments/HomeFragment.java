@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.DoAn_Mobile.Activities.SearchActivity;
 import com.DoAn_Mobile.Adapters.HomeAdapter;
 import com.DoAn_Mobile.Adapters.Model;
 import com.DoAn_Mobile.Adapters.Post;
@@ -58,6 +59,10 @@ public class HomeFragment extends Fragment {
                     intent.putExtra("type", "text");
                     startActivity(intent);
                     break;
+                case R.id.nav_find:
+                    intent = new Intent(requireActivity(), SearchActivity.class);
+                    startActivity(intent);
+                    break;
 //                case R.id.nav_chat:
 //                    intent = new Intent(requireActivity(), ChatHomeActivity.class);
 //                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -76,13 +81,6 @@ public class HomeFragment extends Fragment {
 
 
     void readPosts() {
-        DocumentReference userReference = FirebaseFirestore.getInstance().collection("Users").document(FirebaseAuth.getInstance().getUid());
-        userReference.get().addOnSuccessListener(userSnapshot -> {
-            User user = userSnapshot.toObject(User.class);
-
-        });
-
-
         CollectionReference feedReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("feed");
         feedReference.get().addOnSuccessListener(feedSnapshots -> {
             if (feedSnapshots.isEmpty()) {

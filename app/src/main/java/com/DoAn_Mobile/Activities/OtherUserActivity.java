@@ -117,7 +117,7 @@ public class OtherUserActivity extends AppCompatActivity {
 
         // Lưu yêu cầu kết bạn vào Firestore
         db.collection("friend_requests")
-                .document(currentUserId + "_" + otherUserId) // Tạo một key duy nhất cho mỗi yêu cầu
+                .document(currentUserId) // Tạo một key duy nhất cho mỗi yêu cầu
                 .set(friendRequest)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

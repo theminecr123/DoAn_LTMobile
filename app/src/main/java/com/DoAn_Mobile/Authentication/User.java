@@ -189,4 +189,12 @@ public class User {
     public void setBlockedAccounts(List<DocumentReference> blockedAccounts) {
         this.blockedAccounts = blockedAccounts;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }

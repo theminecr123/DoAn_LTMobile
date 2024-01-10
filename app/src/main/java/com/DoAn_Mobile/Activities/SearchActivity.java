@@ -12,6 +12,8 @@ import android.widget.EditText;
 import com.DoAn_Mobile.Adapters.UserAdapter;
 import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -24,6 +26,7 @@ public class SearchActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private UserAdapter adapter;
     private List<User> userList = new ArrayList<>();
+    String currentUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,7 @@ public class SearchActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new UserAdapter(this, userList);
         recyclerView.setAdapter(adapter);
+        getCurrentUserUsername();
 
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -63,7 +67,9 @@ public class SearchActivity extends AppCompatActivity {
                 userList.clear();
                 for (DocumentSnapshot document : task.getResult()) {
                     User user = document.toObject(User.class);
-                    userList.add(user);
+                    if (!user.getUsername().equals(currentUsername)) {
+                        userList.add(user);
+                    }
                 }
                 adapter.notifyDataSetChanged();
             } else {
@@ -71,5 +77,39 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
     }
+    private void getCurrentUserUsername() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+
+            FirebaseFirestore.getInstance().collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Lấy thông tin người dùng từ Firestore
+                            User user = documentSnapshot.toObject(User.class);
+
+                            // Kiểm tra nếu username không rỗng thì sử dụng
+                            if (user != null && user.getUsername() != null && !user.getUsername().isEmpty()) {
+                                String username = user.getUsername();
+                                currentUsername = username;
+                                // Sử dụng biến username ở đây
+                            } else {
+                                // Handle trường hợp username không tồn tại
+                            }
+                        } else {
+                            // Handle trường hợp không tìm thấy tài khoản người dùng trong Firestore
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        // Xử lý lỗi khi thực hiện truy vấn Firestore
+                    });
+        } else {
+            // Người dùng chưa đăng nhập
+        }
+    }
+
 
 }

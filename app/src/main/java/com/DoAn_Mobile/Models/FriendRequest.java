@@ -18,6 +18,12 @@ public class FriendRequest {
         this.status = status;
     }
 
+    public FriendRequest(String requestId, String fromUserId) {
+        this.requestId = requestId;
+        this.fromUserId = fromUserId;
+
+    }
+
     public String getRequestId() {
         return requestId;
     }
