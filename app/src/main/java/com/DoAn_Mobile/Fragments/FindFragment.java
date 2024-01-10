@@ -291,7 +291,6 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
     private void getDefaultLocationFromFirebase() {
         String userId = FirebaseAuth.getInstance().getUid();
         DocumentReference userRef = db.collection("users").document(userId);
-
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 // Giả sử bạn có một lớp Location có thể phân tích tài liệu Firestore

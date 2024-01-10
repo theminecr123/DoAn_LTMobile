@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Chỉnh sửa thông tin"
+        android:textColor="@color/purple_200"
         android:textSize="30dp"
         android:textStyle="bold"
         android:paddingStart="12dp"
@@ -40,6 +41,22 @@
                 android:background="@drawable/border_text"
                 android:hint="Tên"
                 android:inputType="text"
+                android:textStyle="bold"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="82dp" />
+            <EditText
+                android:id="@+id/editNickName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/border_text"
+                android:hint="Biệt hiệu"
+                android:inputType="text"
+                android:textStyle="bold"
                 android:paddingStart="12dp"
                 android:paddingTop="10dp"
                 android:paddingEnd="12dp"
@@ -60,6 +77,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:layout_marginLeft="10dp"
+                    android:textStyle="bold"
                     android:text="Giới tính"
                     android:textSize="30sp" />
 

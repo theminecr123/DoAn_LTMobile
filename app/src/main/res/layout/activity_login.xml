@@ -25,6 +25,7 @@
         android:drawableStart="@drawable/icon_email"
         android:ems="10"
         android:hint="    Email"
+        android:textStyle="bold"
         android:inputType="textEmailAddress"
         android:paddingStart="12dp"
         android:paddingTop="10dp"
@@ -41,13 +42,14 @@
         android:drawableStart="@drawable/icon_password1"
         android:ems="10"
         android:hint="   Password"
+        android:textStyle="bold"
         android:inputType="textPassword"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
         android:textSize="20dp" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/textforgot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="50dp"

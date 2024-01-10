@@ -14,6 +14,7 @@
         android:textStyle="bold"
         android:gravity="center"
         android:text="Thêm video"
+        android:textColor="@color/purple_200"
         android:textSize="28sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
@@ -26,6 +27,7 @@
 
         <EditText
             android:id="@+id/add_url"
+            android:textStyle="bold"
             android:textSize="18sp"
             android:layout_marginLeft="60dp"
             android:layout_marginRight="60dp"
@@ -36,11 +38,12 @@
             android:id="@+id/add_nd"
             android:layout_width="match_parent"
             android:layout_height="100dp"
+            android:textStyle="bold"
             android:layout_marginLeft="60dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="60dp"
             android:hint="Nội dung"
-            android:textSize="15sp" />
+            android:textSize="18sp" />
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/video_preview"

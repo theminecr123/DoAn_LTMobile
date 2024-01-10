@@ -6,7 +6,7 @@ public class Conversation {
     private List<Message> messages;
 
     public Conversation() {
-        // Firestore cần một constructor rỗng
+
     }
 
     public Conversation(List<Message> messages) {

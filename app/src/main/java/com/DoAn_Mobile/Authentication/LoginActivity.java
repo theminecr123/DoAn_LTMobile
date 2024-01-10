@@ -9,12 +9,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.DoAn_Mobile.Activities.ChangePassActivity;
 import com.DoAn_Mobile.MainActivity;
 import com.DoAn_Mobile.R;
 import com.DoAn_Mobile.UI.SplashActivity;
@@ -77,6 +79,15 @@ public class LoginActivity extends AppCompatActivity {
 
 
         });
+        TextView textForgot = findViewById(R.id.textforgot);
+        textForgot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Mở ChangePassActivity khi người dùng bấm vào "Forgot password"
+                Intent intent = new Intent(LoginActivity.this, ChangePassActivity.class);
+                startActivity(intent);
+            }
+        });
 
         edtEmail.addTextChangedListener(new TextWatcher() {
             @Override
@@ -113,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (isValidPassword(s.toString())) {
                     edtPassword.setError(null);
                 } else {
-                    // Nếu mật khẩu không hợp lệ, có thể hiển thị thông báo lỗi
+
                     edtPassword.setError("Mật khẩu không hợp lệ");
                 }
             }
