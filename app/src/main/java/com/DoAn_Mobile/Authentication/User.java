@@ -14,7 +14,6 @@ public class User {
     int post;
     int follow;
     String profileImageUrl;
-    String backgroundImageUrl;
     String onesignalPlayerId;
     boolean isPrivate;
     Boolean isActive;
@@ -40,7 +39,6 @@ public class User {
         this.email = email;
         this.onesignalPlayerId = "";
         this.profileImageUrl = profileImageUrl;
-        this.backgroundImageUrl = backgroundImageUrl;
         this.bio = "";
         this.post = 0;
         this.follow = 0;
@@ -106,9 +104,6 @@ public class User {
     public String getProfileImageUrl() {
         return profileImageUrl;
     }
-    public String getBackgroundImageUrl() {
-        return backgroundImageUrl;
-    }
 
     public Location getLocation() {
         return location;
@@ -146,9 +141,6 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public void setBackgroundImageUrl(String backgroundImageUrl) {
-        this.backgroundImageUrl = backgroundImageUrl;
-    }
 
     public void setPrivate(boolean aPrivate) {
         isPrivate = aPrivate;

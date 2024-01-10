@@ -1,4 +1,4 @@
-package com.DoAn_Mobile.Adapters;
+package com.DoAn_Mobile.Models;
 
 public class Comment {
     String publisherId;

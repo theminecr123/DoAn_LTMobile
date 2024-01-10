@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.DoAn_Mobile.Models.Model;
 import com.DoAn_Mobile.R;
 
 import java.util.ArrayList;

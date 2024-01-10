@@ -16,11 +16,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.DoAn_Mobile.Activities.EditInfoActivity;
 import com.DoAn_Mobile.Activities.FriendActivity;
 import com.DoAn_Mobile.Activities.FriendChatActivity;
 import com.DoAn_Mobile.Activities.FriendRequestActivity;
+import com.DoAn_Mobile.Adapters.MyPostAdapter;
+import com.DoAn_Mobile.Adapters.PostAdapter;
+import com.DoAn_Mobile.Authentication.User;
+import com.DoAn_Mobile.Models.Post;
 import com.DoAn_Mobile.R;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,6 +34,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -47,6 +55,7 @@ public class ProfileFragment extends Fragment {
 
     private FirebaseFirestore db; // Firestore instance
     private StorageReference storageRef; // Firebase Storage reference
+    MyPostAdapter postAdapter;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -125,9 +134,13 @@ public class ProfileFragment extends Fragment {
                 startActivityForResult(intent, EDIT_INFO_REQUEST_CODE);
             }
         });
+        RecyclerView myPostRecyclerView = view.findViewById(R.id.myPost);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        myPostRecyclerView.setLayoutManager(gridLayoutManager);
+        postAdapter = new MyPostAdapter();
+        myPostRecyclerView.setAdapter(postAdapter);  // Ensure that you set the adapter to your RecyclerView
 
-
-
+        loadUserPosts(); // Call this after initializing the adapter
         return view;
     }
 
@@ -215,5 +228,35 @@ public class ProfileFragment extends Fragment {
     private void hideKeyboardFrom(Context context, View view) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private void loadUserPosts() {
+        DocumentReference userRef = db.collection("users").document(mAuth.getUid());
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                List<DocumentReference> postRefs = documentSnapshot.toObject(User.class).getPosts();
+                loadPostsFromRefs(postRefs);
+            }
+        }).addOnFailureListener(e -> {
+            // Handle errors here
+        });
+    }
+
+    private void loadPostsFromRefs(List<DocumentReference> postRefs) {
+        for (DocumentReference postRef : postRefs) {
+            postRef.get().addOnSuccessListener(postSnapshot -> {
+                if (postSnapshot.exists()) {
+                    Post post = postSnapshot.toObject(Post.class);
+                    // Check if creatorID matches currentID
+                    if (post != null && mAuth.getUid().equals(post.getCreator())) {
+                        // This post is created by the current user, you can add it to your adapter
+                        postAdapter.addPost(post);
+                        postAdapter.notifyDataSetChanged();
+                    }
+                }
+            }).addOnFailureListener(e -> {
+                // Handle errors here
+            });
+        }
     }
 }

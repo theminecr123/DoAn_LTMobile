@@ -11,7 +11,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.DoAn_Mobile.R;
 import com.DoAn_Mobile.Authentication.User;
-import com.DoAn_Mobile.Adapters.Post;
+import com.DoAn_Mobile.Models.Post;
 public class SavedPostsActivity extends AppCompatActivity {
     RecyclerView savedPostsRecyclerview;
     ImageView closeButton;

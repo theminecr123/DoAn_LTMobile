@@ -10,15 +10,20 @@ import android.widget.Toast;
 
 import com.DoAn_Mobile.Adapters.FriendRequestAdapter;
 import com.DoAn_Mobile.Models.FriendRequest;
+import com.DoAn_Mobile.Models.Message;
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FriendRequestActivity extends AppCompatActivity implements FriendRequestAdapter.OnFriendRequestListener {
     private RecyclerView recyclerView;
@@ -110,6 +115,25 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
                                             .collection("friends").document(request.getFromUserId())
                                             .set(new HashMap<>(), SetOptions.merge())
                                             .addOnSuccessListener(aVoid1 -> {
+                                                String conversationId = getConversationId(currentUserId,request.getFromUserId() );
+                                                Message welcomeMessage = new Message(currentUserId, request.getFromUserId(), "Hãy bắt đầu cuộc trò chuyện mới!.", new Date());
+                                                db.collection("Messages").document(conversationId)
+                                                        .update("messages", FieldValue.arrayUnion(welcomeMessage))
+
+                                                        .addOnFailureListener(e -> {
+                                                            // Xử lý trường hợp document cuộc hội thoại chưa tồn tại
+                                                            if (e.getMessage().contains("No document to update")) {
+                                                                // Tạo document mới cho cuộc hội thoại
+                                                                Map<String, Object> conversationData = new HashMap<>();
+                                                                conversationData.put("messages", Arrays.asList(welcomeMessage));
+                                                                db.collection("Messages").document(conversationId)
+                                                                        .set(conversationData);
+                                                            } else {
+                                                                Log.e("Firestore", "Error adding welcome message: ", e);
+                                                            }
+                                                        });
+
+
                                                 // Làm tương tự với người dùng khác
                                                 db.collection("users").document(request.getFromUserId())
                                                         .collection("friends").document(currentUserId)
@@ -180,6 +204,9 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
     }
 
 
-
+    private String getConversationId(String userId1, String userId2) {
+        // Sắp xếp userId1 và userId2 theo thứ tự bảng chữ cái và nối chúng lại với nhau
+        return userId1.compareTo(userId2) < 0 ? userId1 + "_" + userId2 : userId2 + "_" + userId1;
+    }
 }
 

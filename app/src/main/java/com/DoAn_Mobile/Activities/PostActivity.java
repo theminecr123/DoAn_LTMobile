@@ -1,4 +1,4 @@
-package com.DoAn_Mobile.Adapters;
+package com.DoAn_Mobile.Activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import com.DoAn_Mobile.MainActivity;
+import com.DoAn_Mobile.Models.Post;
 import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;

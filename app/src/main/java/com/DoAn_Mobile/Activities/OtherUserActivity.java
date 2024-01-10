@@ -178,7 +178,6 @@ public class OtherUserActivity extends AppCompatActivity {
         // Lấy uid của người dùng hiện tại
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Tạo hoặc cập nhật document trong collection 'friend_requests'
         Map<String, Object> friendRequest = new HashMap<>();
         friendRequest.put("from", currentUserId);
         friendRequest.put("to", otherUserId);
@@ -186,9 +185,7 @@ public class OtherUserActivity extends AppCompatActivity {
 
         // Lưu yêu cầu kết bạn vào Firestore
         db.collection("friend_requests")
-                .document(currentUserId) // Tạo một key duy nhất cho mỗi yêu cầu
-                .collection("to") // Collection chứa các lời mời được gửi đi
-                .document(otherUserId)
+                .document(currentUserId + "_" + otherUserId) // Tạo một key duy nhất cho mỗi yêu cầu
                 .set(friendRequest)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

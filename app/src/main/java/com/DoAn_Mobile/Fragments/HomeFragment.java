@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -15,20 +14,15 @@ import android.view.ViewGroup;
 
 import com.DoAn_Mobile.Activities.FriendChatActivity;
 import com.DoAn_Mobile.Activities.SearchActivity;
-import com.DoAn_Mobile.Adapters.HomeAdapter;
-import com.DoAn_Mobile.Adapters.Model;
-import com.DoAn_Mobile.Adapters.Post;
-import com.DoAn_Mobile.Adapters.PostActivity;
+import com.DoAn_Mobile.Models.Post;
+import com.DoAn_Mobile.Activities.PostActivity;
 import com.DoAn_Mobile.Adapters.PostAdapter;
-import com.DoAn_Mobile.Authentication.User;
 import com.DoAn_Mobile.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
 
 
 public class HomeFragment extends Fragment {
@@ -82,24 +76,21 @@ public class HomeFragment extends Fragment {
 
 
     void readPosts() {
-        CollectionReference feedReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).collection("feed");
+        CollectionReference feedReference = FirebaseFirestore.getInstance().collection("Posts"); // Thay đổi đường dẫn đến bài viết của tất cả người dùng
+
         feedReference.get().addOnSuccessListener(feedSnapshots -> {
             if (feedSnapshots.isEmpty()) {
-
                 return;
             }
             postAdapter.clearPosts();
             for (DocumentSnapshot feedSnapshot : feedSnapshots) {
-                DocumentReference postReference = feedSnapshot.getDocumentReference("postReference");
+                DocumentReference postReference = feedSnapshot.getReference();
                 boolean isVisited = Boolean.TRUE.equals(feedSnapshot.getBoolean("visited"));
-                assert postReference != null;
                 postReference.get().addOnSuccessListener(postSnapshot -> postAdapter.addPost(postSnapshot.toObject(Post.class)));
             }
         }).addOnFailureListener(e -> {
-
             Log.e("Firestore Error", e.getMessage());
-
         });
-
     }
+
 }
