@@ -75,7 +75,6 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
         }
     }
 
-
     private void setupVideoView(int position, VideoInfo videoInfo) {
 
         if (videoList != null && !videoList.isEmpty() && position >= 0 && position < videoList.size()) {
@@ -106,13 +105,14 @@ public class WatchAdapter extends RecyclerView.Adapter<WatchAdapter.WatchViewHol
 
                     videoView.start();
                     startUpdatingProgressBar();
-                    videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+                    /*videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                         @Override
                         public void onPrepared(MediaPlayer mediaPlayer) {
                             playPauseIcon.setVisibility(View.GONE);
                             mediaPlayer.start();
                         }
-                    });
+                    });*/
                 }
             });
         }

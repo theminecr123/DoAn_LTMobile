@@ -1,5 +1,6 @@
 package com.DoAn_Mobile.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -7,7 +8,9 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import com.DoAn_Mobile.Activities.AddvideoActivity;
 import com.DoAn_Mobile.Adapters.WatchAdapter;
 import com.DoAn_Mobile.Models.VideoInfo;
 import com.DoAn_Mobile.R;
@@ -20,6 +23,7 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class WatchFragment extends Fragment {
+    Button themvd;
 
     public WatchFragment() {
         // Required empty public constructor
@@ -39,6 +43,17 @@ public class WatchFragment extends Fragment {
 
         WatchAdapter adapter = new WatchAdapter(createVideoList());
         viewPager2.setAdapter(adapter);
+
+        themvd = view.findViewById(R.id.themvd);
+
+        themvd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), AddvideoActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 

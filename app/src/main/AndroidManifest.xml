@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DoAn_Mobile">
         <activity
+            android:name=".Activities.AddvideoActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.FriendActivity"
             android:exported="false" />
         <activity
