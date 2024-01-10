@@ -88,7 +88,7 @@ public class ChatActivity extends AppCompatActivity {
                             List<Message> newMessages = conversation.getMessages();
                             messageList.clear();
                             for (Message message : newMessages) {
-                                if (!message.getMessage().equals("Chúc mừng! Bạn đã được ghép đôi.")) {
+                                if (!message.getMessage().equals("Chúc mừng! Bạn đã được ghép đôi.") || !message.getMessage().equals("Hãy bắt đầu cuộc trò chuyện mới!.")) {
                                     messageList.add(message);
                                 }
                             }

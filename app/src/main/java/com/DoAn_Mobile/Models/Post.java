@@ -1,4 +1,4 @@
-package com.DoAn_Mobile.Adapters;
+package com.DoAn_Mobile.Models;
 
 import com.google.firebase.firestore.DocumentReference;
 

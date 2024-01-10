@@ -12,7 +12,7 @@
 //import com.google.firebase.firestore.DocumentReference;
 //import com.DoAn_Mobile.Adapters.MyKittAdapter;
 //import com.DoAn_Mobile.Adapters.MyPictureAdapter;
-//import com.DoAn_Mobile.Adapters.Post;
+//import com.DoAn_Mobile.Models.Post;
 //import com.DoAn_Mobile.Authentication.User;
 //
 //public class ProfilePageManager {

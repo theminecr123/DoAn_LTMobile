@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.DoAn_Mobile.Adapters.PostActivity;
+import com.DoAn_Mobile.Activities.PostActivity;
 
 public class SelectSourceDialogFragment extends DialogFragment {
     public static SelectSourceDialogFragment newInstance() {

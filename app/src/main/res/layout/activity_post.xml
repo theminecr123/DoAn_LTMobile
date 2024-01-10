@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/post_parent"
-    tools:context=".Adapters.PostActivity">
+    tools:context=".Activities.PostActivity">
 
 
     <RelativeLayout

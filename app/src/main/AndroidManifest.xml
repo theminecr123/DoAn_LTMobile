@@ -41,7 +41,7 @@
             android:name=".Activities.EditInfoActivity"
             android:exported="false" />
         <activity
-            android:name=".Adapters.PostActivity"
+            android:name=".Activities.PostActivity"
             android:exported="false" />
         <activity
             android:name=".Activities.MatchActivity"

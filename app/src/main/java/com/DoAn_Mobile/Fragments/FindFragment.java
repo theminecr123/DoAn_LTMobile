@@ -211,20 +211,51 @@ public class FindFragment extends Fragment implements FindAdapter.UserInteractio
                     .startAfter(currentPageStart)
                     .limit(PAGE_SIZE);
 
-            query.get().addOnSuccessListener(queryDocumentSnapshots -> {
-                List<User> newUserList = new ArrayList<>();
-                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                    User user = documentSnapshot.toObject(User.class);
-                    if (user != null && user.getLocation() != null && !excludedUserIds.contains(user.getId())) {
-                        newUserList.add(user);
-                    }
-                }
-                updateAdapterData(newUserList);
+            db.collection("users")
+                    .document(currentUserId)
+                    .collection("friends")
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            List<String> friendIds = new ArrayList<>();
+                            for (DocumentSnapshot document : task.getResult()) {
+                                String friendUid = document.getId();
+                                friendIds.add(friendUid);
+                            }
 
-                // ... (phần còn lại của code)
-            }).addOnFailureListener(e -> {
-                Log.e("Firestore", "Error getting user data: ", e);
-            });
+                            // After getting friendIds, execute the query to get users
+                            query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+                                List<User> newUserList = new ArrayList<>();
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    User user = documentSnapshot.toObject(User.class);
+                                    if (user != null && user.getLocation() != null
+                                            && !excludedUserIds.contains(user.getId())
+                                            && !friendIds.contains(user.getId())) {
+                                        newUserList.add(user);
+                                    }
+                                }
+                                updateAdapterData(newUserList);
+
+                            }).addOnFailureListener(e -> {
+                                Log.e("Firestore", "Error getting user data: ", e);
+                            });
+                        }
+                    });
+
+
+//            query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+//                List<User> newUserList = new ArrayList<>();
+//                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+//                    User user = documentSnapshot.toObject(User.class);
+//                    if (user != null && user.getLocation() != null && !excludedUserIds.contains(user.getId())) {
+//                        newUserList.add(user);
+//                    }
+//                }
+//                updateAdapterData(newUserList);
+//
+//            }).addOnFailureListener(e -> {
+//                Log.e("Firestore", "Error getting user data: ", e);
+//            });
         });
     }
 

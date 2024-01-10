@@ -1,7 +1,6 @@
 package com.DoAn_Mobile.Adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.DoAn_Mobile.R;
 //import com.DoAn_Mobile.OtherProfileActivity;
-import com.DoAn_Mobile.Adapters.Comment;
+import com.DoAn_Mobile.Models.Comment;
 import com.DoAn_Mobile.Authentication.User;
 
 import java.util.List;
