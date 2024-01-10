@@ -18,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.DoAn_Mobile.Activities.EditInfoActivity;
+import com.DoAn_Mobile.Activities.FriendActivity;
+import com.DoAn_Mobile.Activities.FriendChatActivity;
 import com.DoAn_Mobile.Activities.FriendRequestActivity;
 import com.DoAn_Mobile.R;
 import com.bumptech.glide.Glide;
@@ -63,10 +65,16 @@ public class ProfileFragment extends Fragment {
 
         loadUserDataFromFirestore();
 
-        Button button3 = view.findViewById(R.id.btnFriend);
+        Button btnFriend = view.findViewById(R.id.btnFriend);
+        Button btnFriendRequest = view.findViewById(R.id.btnFriendRequest);
 
-        button3.setOnClickListener(v -> {
+        btnFriendRequest.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), FriendRequestActivity.class);
+            startActivity(intent);
+        });
+
+        btnFriend.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), FriendActivity.class);
             startActivity(intent);
         });
 

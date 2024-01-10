@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.DoAn_Mobile.Activities.FriendChatActivity;
 import com.DoAn_Mobile.Activities.SearchActivity;
 import com.DoAn_Mobile.Adapters.HomeAdapter;
 import com.DoAn_Mobile.Adapters.Model;
@@ -63,11 +64,11 @@ public class HomeFragment extends Fragment {
                     intent = new Intent(requireActivity(), SearchActivity.class);
                     startActivity(intent);
                     break;
-//                case R.id.nav_chat:
-//                    intent = new Intent(requireActivity(), ChatHomeActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    startActivity(intent);
-//                    break;
+                case R.id.nav_chat:
+                    intent = new Intent(requireActivity(), FriendChatActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    break;
             }
             return true;
         });

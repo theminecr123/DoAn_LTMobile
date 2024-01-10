@@ -44,6 +44,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, OtherUserActivity.class);
             intent.putExtra("user_id", user.getId());
+            intent.putExtra("type", "strange");
             context.startActivity(intent);
         });
 

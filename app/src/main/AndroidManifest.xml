@@ -18,6 +18,9 @@
             android:name=".Activities.FriendActivity"
             android:exported="false" />
         <activity
+            android:name=".Activities.FriendChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.AddvideoActivity"
             android:exported="false" />
         <activity
