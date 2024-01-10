@@ -36,7 +36,9 @@ import com.DoAn_Mobile.DateFormatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PostActivity extends AppCompatActivity {
@@ -149,6 +151,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     private void publishPost() {
+
         if (filePath != null) {
             ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
@@ -178,14 +181,31 @@ public class PostActivity extends AppCompatActivity {
                 progressDialog.setMessage("Uploaded " + (int) progress + "%");
             });
         } else {
-            String postId = DateFormatter.getCurrentTime();
-            Post post = new Post(user.getUid(), postId, "", "");
-            post.setKitt(caption.getText().toString());
-            DocumentReference postRef = db.collection("Posts").document(postId);
-            postRef.set(post).addOnCompleteListener(task -> {
-                updateUserPostsAndFeed(postRef, true); // Gửi tham số true để chỉ định rằng đây là một bài đăng văn bản
-                startMainActivity();
-            });
+            String postCaption = caption.getText().toString();
+            boolean containsBannedWords = false;
+
+            // Danh sách các từ bị cấm
+            List<String> bannedWords = Arrays.asList("ABC", "XYZ", "DEF");
+
+            for (String bannedWord : bannedWords) {
+                if (postCaption.contains(bannedWord)) {
+                    containsBannedWords = true;
+                    break;
+                }
+            }
+
+            if (containsBannedWords) {
+                Toast.makeText(this, "Từ ngữ không phù hợp", Toast.LENGTH_SHORT).show();
+            } else {
+                String postId = DateFormatter.getCurrentTime();
+                Post post = new Post(user.getUid(), postId, "", "");
+                post.setKitt(postCaption);
+                DocumentReference postRef = db.collection("Posts").document(postId);
+                postRef.set(post).addOnCompleteListener(task -> {
+                    updateUserPostsAndFeed(postRef, true);
+                    startMainActivity();
+                });
+            }
         }
     }
 
