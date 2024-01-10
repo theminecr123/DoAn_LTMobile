@@ -63,7 +63,8 @@
                     android:id="@+id/tvUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
+                    android:text="Username"
+                    android:textStyle="bold"
                     android:textSize="16dp" />
 
                 <LinearLayout
@@ -77,6 +78,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:textStyle="bold"
                         android:text="Bài viết"
                         android:textSize="18sp" />
 
@@ -86,6 +88,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Followers"
+                        android:textStyle="bold"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -98,9 +101,11 @@
                     android:layout_marginRight="30dp"
                     android:background="@drawable/border"
                     android:padding="10dp"
+                    android:textStyle="bold"
                     android:text="Chỉnh sửa thông tin "
                     android:textColor="#fff"
-                    android:textSize="12sp"></Button>
+                    android:textSize="12sp">
+                </Button>
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -12,8 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:gravity="center"
         android:layout_marginBottom="20dp"
         android:text="Matching"
+        android:textColor="@color/purple_200"
         android:textSize="30dp"
         android:textStyle="bold" />
 
@@ -24,7 +26,8 @@
         android:layout_margin="10dp"
         android:background="@drawable/border_text"
         android:ems="10"
-        android:hint="Search"
+        android:drawableStart="@drawable/find"
+        android:hint=" Search"
         android:inputType="text"
         android:paddingStart="10dp" />
 

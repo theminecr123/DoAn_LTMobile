@@ -26,6 +26,7 @@
         <TextView
             style="@style/Header.Title"
             android:layout_toEndOf="@id/btn_close"
+            android:textStyle="bold"
             android:text="Comments" />
     </RelativeLayout>
 

@@ -8,7 +8,9 @@
         android:id="@+id/et_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search users"/>
+        android:textStyle="bold"
+        android:drawableStart="@drawable/find"
+        android:hint="  Search users"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
