@@ -8,21 +8,24 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.DoAn_Mobile.Models.Model;
 import com.DoAn_Mobile.Models.Post;
 import com.DoAn_Mobile.R;
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyPostViewHolder> {
     private List<Post> postList;
-    // ...
+
     public MyPostAdapter() {
         postList = new ArrayList<>(); // Initialize postList
     }
+    public void setPosts(List<Post> posts) {
+        postList = posts;
+        notifyDataSetChanged();
+    }
+
     public class MyPostViewHolder extends RecyclerView.ViewHolder {
         ImageView postImage;
 
@@ -32,7 +35,6 @@ public class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyPostView
         }
     }
 
-
     @NonNull
     @Override
     public MyPostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,12 +42,14 @@ public class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyPostView
         return new MyPostViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull MyPostViewHolder holder, int position) {
         // Load and display the post image using Glide or your preferred image loading library
+        String url= postList.get(position).getImageUrl();
+
         Glide.with(holder.itemView.getContext())
-                .load(postList.get(position).getImageUrl())
+                .load(url)
+                .error(R.drawable.error)
                 .into(holder.postImage);
     }
 
@@ -54,11 +58,5 @@ public class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyPostView
         return postList != null ? postList.size() : 0; // Ensure postList is not null
     }
 
-    public void addPost(Post post) {
-        if (postList != null) {
-            postList.add(post);
-            notifyItemInserted(postList.size() - 1);
-        }
-    }
-}
 
+}
