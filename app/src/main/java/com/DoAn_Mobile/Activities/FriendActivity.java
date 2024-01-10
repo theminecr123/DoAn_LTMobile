@@ -91,7 +91,7 @@ public class FriendActivity extends AppCompatActivity {
     private void openUserProfile(String friendUid) {
         // Navigate to ActivityProfile with the selected friend's UID
         Intent intent = new Intent(this, OtherUserActivity.class);
-        intent.putExtra("userId", friendUid);
+        intent.putExtra("user_id", friendUid);
         intent.putExtra("type", "friend");
         startActivity(intent);
     }
