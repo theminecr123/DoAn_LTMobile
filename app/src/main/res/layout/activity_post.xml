@@ -68,7 +68,7 @@
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="10dp"
         android:id="@+id/layout_caption"
-        android:hint="Add Caption">
+        android:hint="Thêm Nội Dung">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_caption"

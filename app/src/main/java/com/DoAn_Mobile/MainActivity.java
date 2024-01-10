@@ -3,10 +3,14 @@ package com.DoAn_Mobile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.DoAn_Mobile.Adapters.ChangePasswordActivity;
 import com.DoAn_Mobile.Adapters.WatchAdapter;
 import com.DoAn_Mobile.Authentication.LoginActivity;
 import com.DoAn_Mobile.Models.VideoInfo;
@@ -22,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView navigationView;
     ViewPager2 pager2;
-    Button button;
+    //Button button;
+    TextView button;
     private FirebaseAuth mAuth;
 
 
@@ -82,4 +87,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_change_password) {
+            Intent intent = new Intent(MainActivity.this, ChangePasswordActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        // Các xử lý cho các mục menu khác (nếu có)
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }
